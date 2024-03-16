@@ -1,0 +1,744 @@
+{
+  "configuration" : { },
+  "description" : "Простая система магазина с базовыми функциями для покупателей",
+  "documentation" : {
+    "decisions" : [ {
+      "content" : "# 1. Использование PostgreSQL в качестве основного хранилище данных\n\nDate: 2023-06-06\n\n## Status\n\nAccepted\nAmended by [2. Масштабирование PostgreSQL](#2)\nAmended by [3. Не использование ORM](#3)\n\n\n## Context\n\nДля хранения информации о клиентах, совершаемых платежах, подписках и т.д. необходимо зранить информацию в долговременном носителе;\n\n## Decision\n\nРассматриваемые варианты:\n1. SQL хранилище на основе PostgreSQL 14\n2. NoSQL хранилище на основе MongoDB\n\n**Плюсы решения 1:**\nВозможность совершать запросы к хранилищу по различным критериям (поиск всех клиентов с неоплачеными счетами, различные критерии выбора клиентов и т.д.)\n\n**Минусы решения 1:**\nНеобходимо заранее продумать модель данных, критерии индексирования. Будет затруднено хранение слабоструктурированных данных. Для построения кластера нужно применять внешнее решение (patroni)\n\n**Плюсы решения 2:**\nВозможность менять/расширять модель зранения данных. Высокопроизводительные запросы по ключевым полям. Возможность построения кластера (из коробки)\n\n**Минусы решения 2:**\nПроизвольные запросы по связанным сущностям, будут не так эффективны.\n\n**Выбирается решение 1**\n\n## Consequences\nДля обеспечения отказоустойчивости необходимо отдельно разворачивать кластер на patroni.",
+      "date" : "2023-06-06T00:00:00Z",
+      "format" : "Markdown",
+      "id" : "1",
+      "links" : [ {
+        "description" : "Amended by",
+        "id" : "2"
+      }, {
+        "description" : "Amended by",
+        "id" : "3"
+      } ],
+      "status" : "Accepted",
+      "title" : "Использование PostgreSQL в качестве основного хранилище данных"
+    }, {
+      "content" : "# 2. Репликация хранилища данных на PostgreSQL\n\nDate: 2023-06-06\n\n## Status\n\nAccepted\n\n## Context\n\nДля обеспечения обработки большого количества запросов на чтение данных необходимо разработать стратегию масштабирования хранилища на PostgreSQL\n\n## Decision\n\nРассматриваемые варианты:\n1. Построение репликации Master-Slave\n2. Построение кеширующего слоя на Redis\n\n**Плюсы решения 1:**\nВозможность перенаправлять запросы \"чисто на чтение\" к Slave реплике, снижая нагрузку на master. Возможность увеличивать количество Slave реплик.\n\n**Минусы решения 1:**\nПри увеличении числа запросов на запись такая тактика не поможет снять нагрузку\n\n**Плюсы решения 2:**\nПри реализации паттернов \"сквозное чтение\" и \"сквозная запись\" кластер Redis может помочь снизить нагрузку на систему хранения в PostgreSQL, если в нем сохранять копии основных данных.\n\n**Минусы решения 2:**\nЕсть вероятность того что не получится подобрать оптимальную стратегию кеширования (будет много cache-miss). Не очевидна оптимальная стартегия прогрева кеша.\n\n**Выбирается решение 1**\n\n## Consequences\nДля обеспечения отказоустойчивости необходимо отдельно разворачивать кластер на patroni и осуществить настройку синхронной репликации.\nНа стороне бизнес-логики нужно поддержать разделение запросов на чтение и записиь и обеспечить обращение к разным репликам.",
+      "date" : "2023-06-06T00:00:00Z",
+      "format" : "Markdown",
+      "id" : "2",
+      "status" : "Accepted",
+      "title" : "Репликация хранилища данных на PostgreSQL"
+    }, {
+      "content" : "# 3. Не использование механизмов ORM\n\nDate: 2023-06-07\n\n## Status\n\nProposed\n\n# Context\n\nДля получение/изменение данных в PostgreSQL необходимо выбрать Framework\n\n## Decision\n\nРассматриваемые варианты:\n1. Использование механизмов ORM\n2. Выполнение запросов \"на прямую\" используя ANSI SQL\n3. Реализация слоя хранимых процедур в PostgreSQL\n\n**Плюсы решения 1:**\nПростота разработки\n\n**Минусы решения 1:**\nНе прозрачные механизмы запроса/кеширования данных\n\n**Плюсы решения 2:**\nПоддержка независимости от СУБД\n\n**Минусы решения 2:**\nНеобходимо в коде писать SQL запросы, сложность в разработке и отладке кода.\n\n**Плюсы решения 3:**\nУпрощение читаемости кода backend. Большая производительность запросов за счет возможной предкомпиляции запросов на стороне PostgreSQL.\n\n**Минусы решения 3:**\nЗависимость от производителя СУБД.\n\n**Выполнение запросов \"на прямую\" используя ANSI SQL**\n\n## Consequences\nНеобходимо в бизнес-логике создать слой абстракции над базой данных, которая будет осуществлять запросы и хранить \"код на SQL\"",
+      "date" : "2023-06-07T00:00:00Z",
+      "format" : "Markdown",
+      "id" : "3",
+      "status" : "Proposed",
+      "title" : "Не использование механизмов ORM"
+    }, {
+      "content" : "# Выбор модели авторизации на основе JWT токенов\n\nDate: 2023-06-16\n\n## Status\n\nDraft\n\n## Context\n\nДля обеспечения конфеденциальности и целостности данных приложения, а так же для предотвращения неправомерного использования дронов для слежения необходимо реализовать механизмы аутентификации и атворизации\n\n\n\n## Decision\n### [Использование авторизации на основе Kerberos](https://confluence.veon.com/pages/viewpage.action?pageId=316619410)\n**Плюсы**\nИнтеграция с доменом LDAP. Простой и надежный механизм, поддерживаемый во всех framework-ах\n**Минусы**\nДополнительные запросы на обмен сеансовыми ключами.\n\n### Использование авторизации на основе JWT-токенов\n**Плюсы**\nПоддержка сторонных провайдеров аутентификации, например, по протоколу OAuth 2.0. Упрощение взаимодействия (токены могут валидироваться каждым сервисом самостоятельно)\n\n**Минусы**\nСложность с отзывом токенов в случае его компрометации или \"закрытия\" пользователя.\n\n**Выбирается решение на основе Kerberos**\n## Consequences\n* Необходимо во всех фронтовых сервисах поддержать механизм аутентификации на основе Kerberos. \n* Необходимо обеспечить пробрасывание контекста безопасности во все внутренние системы для целей аудита и авторизациии.\n",
+      "date" : "2023-06-16T00:00:00Z",
+      "format" : "Markdown",
+      "id" : "4",
+      "status" : "Draft",
+      "title" : " Выбор модели авторизации на основе JWT токенов"
+    } ],
+    "sections" : [ {
+      "content" : "# Какой-то заголовок\n\n![Диаграмма](embed:UC01)",
+      "filename" : "start.md",
+      "format" : "Markdown",
+      "order" : 1,
+      "title" : ""
+    } ]
+  },
+  "id" : 1,
+  "lastModifiedAgent" : "structurizr-javascript",
+  "lastModifiedDate" : "2024-03-11T17:26:11Z",
+  "model" : {
+    "deploymentNodes" : [ {
+      "containerInstances" : [ {
+        "containerId" : "3",
+        "deploymentGroups" : [ "Default" ],
+        "environment" : "Production",
+        "id" : "17",
+        "instanceId" : 1,
+        "properties" : {
+          "structurizr.dsl.identifier" : "43ede12f-6a19-4867-ba67-79e8ab4a75a4.fa051985-96dd-4185-a6b3-6baa1d00a0d2.59db2efe-37dd-4d19-b48b-e2b26546df70"
+        },
+        "relationships" : [ {
+          "description" : "запрос на обновление данных о товарах",
+          "destinationId" : "19",
+          "id" : "20",
+          "linkedRelationshipId" : "12",
+          "sourceId" : "17"
+        }, {
+          "description" : "Получение/обновление данных о пользователях",
+          "destinationId" : "23",
+          "id" : "24",
+          "linkedRelationshipId" : "9",
+          "sourceId" : "17",
+          "technology" : "TCP 5432"
+        }, {
+          "description" : "Получение/обновление данных о пользователях",
+          "destinationId" : "29",
+          "id" : "30",
+          "linkedRelationshipId" : "10",
+          "sourceId" : "17",
+          "technology" : "TCP 6379"
+        } ],
+        "tags" : "Container Instance"
+      } ],
+      "environment" : "Production",
+      "id" : "16",
+      "instances" : "1",
+      "name" : "User Server",
+      "properties" : {
+        "structurizr.dsl.identifier" : "43ede12f-6a19-4867-ba67-79e8ab4a75a4.fa051985-96dd-4185-a6b3-6baa1d00a0d2"
+      },
+      "tags" : "Element,Deployment Node"
+    }, {
+      "containerInstances" : [ {
+        "containerId" : "5",
+        "deploymentGroups" : [ "Default" ],
+        "environment" : "Production",
+        "id" : "19",
+        "instanceId" : 1,
+        "properties" : {
+          "structurizr.dsl.identifier" : "43ede12f-6a19-4867-ba67-79e8ab4a75a4.6870b687-461d-4dbf-89ca-c13e57a8dbb6.4236b115-c2e4-47ec-883c-04d9b10722cb"
+        },
+        "relationships" : [ {
+          "description" : "Получение/обновление данных о товаре",
+          "destinationId" : "26",
+          "id" : "27",
+          "linkedRelationshipId" : "13",
+          "sourceId" : "19",
+          "technology" : "TCP 27018"
+        } ],
+        "tags" : "Container Instance"
+      } ],
+      "environment" : "Production",
+      "id" : "18",
+      "instances" : "1",
+      "name" : "Temperature Server",
+      "properties" : {
+        "structurizr.dsl.identifier" : "43ede12f-6a19-4867-ba67-79e8ab4a75a4.6870b687-461d-4dbf-89ca-c13e57a8dbb6",
+        "cpu" : "4",
+        "hdd" : "4Tb",
+        "ram" : "256Gb"
+      },
+      "tags" : "Element,Deployment Node"
+    }, {
+      "children" : [ {
+        "containerInstances" : [ {
+          "containerId" : "6",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Production",
+          "id" : "23",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "43ede12f-6a19-4867-ba67-79e8ab4a75a4.39f6d65a-5e5d-4c6a-9add-6b327efb186e.d3203ce3-19a0-4902-b050-7682e392538d.43f0dd0a-bb87-4f3d-b19b-e94780cb71f9"
+          },
+          "tags" : "Container Instance"
+        } ],
+        "environment" : "Production",
+        "id" : "22",
+        "instances" : "1",
+        "name" : "Database Server 1",
+        "properties" : {
+          "structurizr.dsl.identifier" : "43ede12f-6a19-4867-ba67-79e8ab4a75a4.39f6d65a-5e5d-4c6a-9add-6b327efb186e.d3203ce3-19a0-4902-b050-7682e392538d"
+        },
+        "tags" : "Element,Deployment Node"
+      }, {
+        "containerInstances" : [ {
+          "containerId" : "8",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Production",
+          "id" : "26",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "43ede12f-6a19-4867-ba67-79e8ab4a75a4.39f6d65a-5e5d-4c6a-9add-6b327efb186e.5b79ae25-0db3-4688-8911-070e46a2c8be.ff488268-d06e-4f4e-b19d-68f959b9378c"
+          },
+          "tags" : "Container Instance"
+        } ],
+        "environment" : "Production",
+        "id" : "25",
+        "instances" : "3",
+        "name" : "Database Server 2",
+        "properties" : {
+          "structurizr.dsl.identifier" : "43ede12f-6a19-4867-ba67-79e8ab4a75a4.39f6d65a-5e5d-4c6a-9add-6b327efb186e.5b79ae25-0db3-4688-8911-070e46a2c8be"
+        },
+        "tags" : "Element,Deployment Node"
+      }, {
+        "containerInstances" : [ {
+          "containerId" : "7",
+          "deploymentGroups" : [ "Default" ],
+          "environment" : "Production",
+          "id" : "29",
+          "instanceId" : 1,
+          "properties" : {
+            "structurizr.dsl.identifier" : "43ede12f-6a19-4867-ba67-79e8ab4a75a4.39f6d65a-5e5d-4c6a-9add-6b327efb186e.3d55a613-ce55-43e7-95a0-afd1b89314e4.bc263d77-cd67-48c8-b172-8e26d5236076"
+          },
+          "tags" : "Container Instance"
+        } ],
+        "environment" : "Production",
+        "id" : "28",
+        "instances" : "1",
+        "name" : "Cache Server",
+        "properties" : {
+          "structurizr.dsl.identifier" : "43ede12f-6a19-4867-ba67-79e8ab4a75a4.39f6d65a-5e5d-4c6a-9add-6b327efb186e.3d55a613-ce55-43e7-95a0-afd1b89314e4"
+        },
+        "tags" : "Element,Deployment Node"
+      } ],
+      "environment" : "Production",
+      "id" : "21",
+      "instances" : "1",
+      "name" : "databases",
+      "properties" : {
+        "structurizr.dsl.identifier" : "43ede12f-6a19-4867-ba67-79e8ab4a75a4.39f6d65a-5e5d-4c6a-9add-6b327efb186e"
+      },
+      "tags" : "Element,Deployment Node"
+    } ],
+    "people" : [ {
+      "id" : "1",
+      "location" : "Unspecified",
+      "name" : "Покупатель",
+      "properties" : {
+        "structurizr.dsl.identifier" : "user"
+      },
+      "relationships" : [ {
+        "description" : "Покупает товар в магазине",
+        "destinationId" : "2",
+        "id" : "14",
+        "properties" : {
+          "structurizr.dsl.identifier" : "9f39a97a-aa9d-4612-b4b8-988a108cc9be"
+        },
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      }, {
+        "description" : "Регистрация нового пользователя",
+        "destinationId" : "3",
+        "id" : "15",
+        "properties" : {
+          "structurizr.dsl.identifier" : "930aadd3-0745-4ae5-a15e-0cbf52e4d977"
+        },
+        "sourceId" : "1",
+        "tags" : "Relationship"
+      } ],
+      "tags" : "Element,Person"
+    } ],
+    "properties" : {
+      "structurizr.groupSeparator" : "/"
+    },
+    "softwareSystems" : [ {
+      "containers" : [ {
+        "description" : "Сервис управления пользователями",
+        "documentation" : { },
+        "id" : "3",
+        "name" : "User service",
+        "properties" : {
+          "structurizr.dsl.identifier" : "shop.user_service"
+        },
+        "relationships" : [ {
+          "description" : "Получение/обновление данных о пользователях",
+          "destinationId" : "6",
+          "id" : "9",
+          "properties" : {
+            "structurizr.dsl.identifier" : "142a7d1b-2efa-4806-8b06-9c2a90620eea"
+          },
+          "sourceId" : "3",
+          "tags" : "Relationship",
+          "technology" : "TCP 5432"
+        }, {
+          "description" : "Получение/обновление данных о пользователях",
+          "destinationId" : "7",
+          "id" : "10",
+          "properties" : {
+            "structurizr.dsl.identifier" : "deee5e5f-6f39-4ebb-8dbf-9baa7d53722b"
+          },
+          "sourceId" : "3",
+          "tags" : "Relationship",
+          "technology" : "TCP 6379"
+        }, {
+          "description" : "запрос на обновление данных о корзине",
+          "destinationId" : "4",
+          "id" : "11",
+          "properties" : {
+            "structurizr.dsl.identifier" : "6836f27f-b27a-4307-a4f9-a9093ad80346"
+          },
+          "sourceId" : "3",
+          "tags" : "Relationship"
+        }, {
+          "description" : "запрос на обновление данных о товарах",
+          "destinationId" : "5",
+          "id" : "12",
+          "properties" : {
+            "structurizr.dsl.identifier" : "d807f4cb-3bc0-4819-9e99-11be5863094f"
+          },
+          "sourceId" : "3",
+          "tags" : "Relationship"
+        } ],
+        "tags" : "Element,Container"
+      }, {
+        "description" : "Сервис управления корзиной",
+        "documentation" : { },
+        "id" : "4",
+        "name" : "Basket service",
+        "properties" : {
+          "structurizr.dsl.identifier" : "shop.basket_service"
+        },
+        "tags" : "Element,Container"
+      }, {
+        "description" : "Сервис управления товарами",
+        "documentation" : { },
+        "id" : "5",
+        "name" : "Product service",
+        "properties" : {
+          "structurizr.dsl.identifier" : "shop.product_service"
+        },
+        "relationships" : [ {
+          "description" : "Получение/обновление данных о товаре",
+          "destinationId" : "8",
+          "id" : "13",
+          "properties" : {
+            "structurizr.dsl.identifier" : "f1a97ce2-8632-4738-93d3-aac8d81f16dc"
+          },
+          "sourceId" : "5",
+          "tags" : "Relationship",
+          "technology" : "TCP 27018"
+        } ],
+        "tags" : "Element,Container"
+      }, {
+        "description" : "База данных с пользователями",
+        "documentation" : { },
+        "group" : "Слой данных",
+        "id" : "6",
+        "name" : "User Database",
+        "properties" : {
+          "structurizr.dsl.identifier" : "shop.user_database"
+        },
+        "tags" : "Element,Container,database",
+        "technology" : "PostgreSQL 15"
+      }, {
+        "description" : "Кеш пользовательских данных для ускорения аутентификации",
+        "documentation" : { },
+        "group" : "Слой данных",
+        "id" : "7",
+        "name" : "User Cache",
+        "properties" : {
+          "structurizr.dsl.identifier" : "shop.user_cache"
+        },
+        "tags" : "Element,Container,database",
+        "technology" : "Redis"
+      }, {
+        "description" : "База данных для хранения информации о продуктах",
+        "documentation" : { },
+        "group" : "Слой данных",
+        "id" : "8",
+        "name" : "Shop Database",
+        "properties" : {
+          "structurizr.dsl.identifier" : "shop.shop_database"
+        },
+        "tags" : "Element,Container,database",
+        "technology" : "MongoDB 5"
+      } ],
+      "description" : "Простой магазин",
+      "documentation" : { },
+      "id" : "2",
+      "location" : "Unspecified",
+      "name" : "Магазин",
+      "properties" : {
+        "structurizr.dsl.identifier" : "shop"
+      },
+      "tags" : "Element,Software System"
+    } ]
+  },
+  "name" : "Магазин",
+  "properties" : {
+    "structurizr.dsl" : "d29ya3NwYWNlIHsKICAgIG5hbWUgItCc0LDQs9Cw0LfQuNC9IgogICAgZGVzY3JpcHRpb24gItCf0YDQvtGB0YLQsNGPINGB0LjRgdGC0LXQvNCwINC80LDQs9Cw0LfQuNC90LAg0YEg0LHQsNC30L7QstGL0LzQuCDRhNGD0L3QutGG0LjRj9C80Lgg0LTQu9GPINC/0L7QutGD0L/QsNGC0LXQu9C10LkiCgogICAgIyDQstC60LvRjtGH0LDQtdC8INGA0LXQttC40Lwg0YEg0LjQtdGA0LDRgNGF0LjRh9C10YHQutC+0Lkg0YHQuNGB0YLQtdC80L7QuSDQuNC00LXQvdGC0LjRhNC40LrQsNGC0L7RgNC+0LIKICAgICFpZGVudGlmaWVycyBoaWVyYXJjaGljYWwKCiAgICAhZG9jcyBkb2N1bWVudGF0aW9uCiAgICAhYWRycyBkZWNpc2lvbnMKICAgICMg0JzQvtC00LXQu9GMINCw0YDRhdC40YLQtdC60YLRg9GA0YsKICAgIG1vZGVsIHsKCiAgICAgICAgIyDQndCw0YHRgtGA0LDQuNCy0LDQtdC8INCy0L7Qt9C80L7QttC90L7RgdGC0Ywg0YHQvtC30LTQsNC90LjRjyDQstC70L7QttC10L3QvdGL0YUg0LPRgNGD0L8KICAgICAgICBwcm9wZXJ0aWVzIHsgCiAgICAgICAgICAgIHN0cnVjdHVyaXpyLmdyb3VwU2VwYXJhdG9yICIvIgogICAgICAgIH0KICAgICAgICAKICAgICAgICAjINCe0L/QuNGB0LDQvdC40LUg0LrQvtC80L/QvtC90LXQvdGCINC80L7QtNC10LvQuAogICAgICAgIHVzZXIgPSBwZXJzb24gItCf0L7QutGD0L/QsNGC0LXQu9GMIgogICAgICAgIHNob3AgPSBzb2Z0d2FyZVN5c3RlbSAi0JzQsNCz0LDQt9C40L0iIHsKICAgICAgICAgICAgZGVzY3JpcHRpb24gItCf0YDQvtGB0YLQvtC5INC80LDQs9Cw0LfQuNC9IgoKICAgICAgICAgICAgdXNlcl9zZXJ2aWNlID0gY29udGFpbmVyICJVc2VyIHNlcnZpY2UiIHsKICAgICAgICAgICAgICAgIGRlc2NyaXB0aW9uICLQodC10YDQstC40YEg0YPQv9GA0LDQstC70LXQvdC40Y8g0L/QvtC70YzQt9C+0LLQsNGC0LXQu9GP0LzQuCIKICAgICAgICAgICAgfQoKICAgICAgICAgICAgYmFza2V0X3NlcnZpY2UgPSBjb250YWluZXIgIkJhc2tldCBzZXJ2aWNlIiB7CiAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbiAi0KHQtdGA0LLQuNGBINGD0L/RgNCw0LLQu9C10L3QuNGPINC60L7RgNC30LjQvdC+0LkiCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIHByb2R1Y3Rfc2VydmljZSA9IGNvbnRhaW5lciAiUHJvZHVjdCBzZXJ2aWNlIiB7CiAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbiAi0KHQtdGA0LLQuNGBINGD0L/RgNCw0LLQu9C10L3QuNGPINGC0L7QstCw0YDQsNC80LgiCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGdyb3VwICLQodC70L7QuSDQtNCw0L3QvdGL0YUiIHsKICAgICAgICAgICAgICAgIHVzZXJfZGF0YWJhc2UgPSBjb250YWluZXIgIlVzZXIgRGF0YWJhc2UiIHsKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbiAi0JHQsNC30LAg0LTQsNC90L3Ri9GFINGBINC/0L7Qu9GM0LfQvtCy0LDRgtC10LvRj9C80LgiCiAgICAgICAgICAgICAgICAgICAgdGVjaG5vbG9neSAiUG9zdGdyZVNRTCAxNSIKICAgICAgICAgICAgICAgICAgICB0YWdzICJkYXRhYmFzZSIKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgdXNlcl9jYWNoZSA9IGNvbnRhaW5lciAiVXNlciBDYWNoZSIgewogICAgICAgICAgICAgICAgICAgIGRlc2NyaXB0aW9uICLQmtC10Ygg0L/QvtC70YzQt9C+0LLQsNGC0LXQu9GM0YHQutC40YUg0LTQsNC90L3Ri9GFINC00LvRjyDRg9GB0LrQvtGA0LXQvdC40Y8g0LDRg9GC0LXQvdGC0LjRhNC40LrQsNGG0LjQuCIKICAgICAgICAgICAgICAgICAgICB0ZWNobm9sb2d5ICJSZWRpcyIKICAgICAgICAgICAgICAgICAgICB0YWdzICJkYXRhYmFzZSIKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgc2hvcF9kYXRhYmFzZSA9IGNvbnRhaW5lciAiU2hvcCBEYXRhYmFzZSIgewogICAgICAgICAgICAgICAgICAgIGRlc2NyaXB0aW9uICLQkdCw0LfQsCDQtNCw0L3QvdGL0YUg0LTQu9GPINGF0YDQsNC90LXQvdC40Y8g0LjQvdGE0L7RgNC80LDRhtC40Lgg0L4g0L/RgNC+0LTRg9C60YLQsNGFIgogICAgICAgICAgICAgICAgICAgIHRlY2hub2xvZ3kgIk1vbmdvREIgNSIKICAgICAgICAgICAgICAgICAgICB0YWdzICJkYXRhYmFzZSIKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQoKICAgICAgICAgICAgdXNlcl9zZXJ2aWNlIC0+IHVzZXJfZGF0YWJhc2UgItCf0L7Qu9GD0YfQtdC90LjQtS/QvtCx0L3QvtCy0LvQtdC90LjQtSDQtNCw0L3QvdGL0YUg0L4g0L/QvtC70YzQt9C+0LLQsNGC0LXQu9GP0YUiICJUQ1AgNTQzMiIKICAgICAgICAgICAgdXNlcl9zZXJ2aWNlIC0+IHVzZXJfY2FjaGUgItCf0L7Qu9GD0YfQtdC90LjQtS/QvtCx0L3QvtCy0LvQtdC90LjQtSDQtNCw0L3QvdGL0YUg0L4g0L/QvtC70YzQt9C+0LLQsNGC0LXQu9GP0YUiICJUQ1AgNjM3OSIKICAgICAgICAgICAgdXNlcl9zZXJ2aWNlIC0+IGJhc2tldF9zZXJ2aWNlICAi0LfQsNC/0YDQvtGBINC90LAg0L7QsdC90L7QstC70LXQvdC40LUg0LTQsNC90L3Ri9GFINC+INC60L7RgNC30LjQvdC1IgogICAgICAgICAgICB1c2VyX3NlcnZpY2UgLT4gcHJvZHVjdF9zZXJ2aWNlICAi0LfQsNC/0YDQvtGBINC90LAg0L7QsdC90L7QstC70LXQvdC40LUg0LTQsNC90L3Ri9GFINC+INGC0L7QstCw0YDQsNGFIgoKICAgICAgICAgICAgcHJvZHVjdF9zZXJ2aWNlIC0+IHNob3BfZGF0YWJhc2UgItCf0L7Qu9GD0YfQtdC90LjQtS/QvtCx0L3QvtCy0LvQtdC90LjQtSDQtNCw0L3QvdGL0YUg0L4g0YLQvtCy0LDRgNC1IiAiVENQIDI3MDE4IgogICAgICAgIH0KCiAgICAgICAgdXNlciAtPiBzaG9wICLQn9C+0LrRg9C/0LDQtdGCINGC0L7QstCw0YAg0LIg0LzQsNCz0LDQt9C40L3QtSIKICAgICAgICB1c2VyIC0+IHNob3AudXNlcl9zZXJ2aWNlICLQoNC10LPQuNGB0YLRgNCw0YbQuNGPINC90L7QstC+0LPQviDQv9C+0LvRjNC30L7QstCw0YLQtdC70Y8iCgogICAgICAgIGRlcGxveW1lbnRFbnZpcm9ubWVudCAiUHJvZHVjdGlvbiIgewogICAgICAgICAgICBkZXBsb3ltZW50Tm9kZSAiVXNlciBTZXJ2ZXIiIHsKICAgICAgICAgICAgICAgIGNvbnRhaW5lckluc3RhbmNlIHNob3AudXNlcl9zZXJ2aWNlCiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGRlcGxveW1lbnROb2RlICJUZW1wZXJhdHVyZSBTZXJ2ZXIiIHsKICAgICAgICAgICAgICAgIGNvbnRhaW5lckluc3RhbmNlIHNob3AucHJvZHVjdF9zZXJ2aWNlCiAgICAgICAgICAgICAgICBwcm9wZXJ0aWVzIHsKICAgICAgICAgICAgICAgICAgICAiY3B1IiAiNCIKICAgICAgICAgICAgICAgICAgICAicmFtIiAiMjU2R2IiCiAgICAgICAgICAgICAgICAgICAgImhkZCIgIjRUYiIKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQoKICAgICAgICAgICAgZGVwbG95bWVudE5vZGUgImRhdGFiYXNlcyIgewogICAgIAogICAgICAgICAgICAgICAgZGVwbG95bWVudE5vZGUgIkRhdGFiYXNlIFNlcnZlciAxIiB7CiAgICAgICAgICAgICAgICAgICAgY29udGFpbmVySW5zdGFuY2Ugc2hvcC51c2VyX2RhdGFiYXNlCiAgICAgICAgICAgICAgICB9CgogICAgICAgICAgICAgICAgZGVwbG95bWVudE5vZGUgIkRhdGFiYXNlIFNlcnZlciAyIiB7CiAgICAgICAgICAgICAgICAgICAgY29udGFpbmVySW5zdGFuY2Ugc2hvcC5zaG9wX2RhdGFiYXNlCiAgICAgICAgICAgICAgICAgICAgaW5zdGFuY2VzIDMKICAgICAgICAgICAgICAgIH0KCiAgICAgICAgICAgICAgICBkZXBsb3ltZW50Tm9kZSAiQ2FjaGUgU2VydmVyIiB7CiAgICAgICAgICAgICAgICAgICAgY29udGFpbmVySW5zdGFuY2Ugc2hvcC51c2VyX2NhY2hlCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0KICAgICAgICAgICAgCiAgICAgICAgfQogICAgfQoKICAgIHZpZXdzIHsKICAgICAgICB0aGVtZXMgZGVmYXVsdAoKICAgICAgICBwcm9wZXJ0aWVzIHsgCiAgICAgICAgICAgIHN0cnVjdHVyaXpyLnRvb2x0aXBzIHRydWUKICAgICAgICB9CgogICAgICAgICFzY3JpcHQgZ3Jvb3Z5IHsKICAgICAgICAgICAgd29ya3NwYWNlLnZpZXdzLmNyZWF0ZURlZmF1bHRWaWV3cygpCiAgICAgICAgICAgIHdvcmtzcGFjZS52aWV3cy52aWV3cy5maW5kQWxsIHsgaXQgaW5zdGFuY2VvZiBjb20uc3RydWN0dXJpenIudmlldy5Nb2RlbFZpZXcgfS5lYWNoIHsgaXQuZW5hYmxlQXV0b21hdGljTGF5b3V0KCkgfQogICAgICAgIH0KCiAgICAgICAgZHluYW1pYyBzaG9wICJVQzAxIiAi0JTQvtCx0LDQstC70LXQvdC40LUg0L3QvtCy0L7Qs9C+INC/0L7Qu9GM0LfQvtCy0LDRgtC10LvRjyIgewogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgICAgIHVzZXIgLT4gc2hvcC51c2VyX3NlcnZpY2UgItCh0L7Qt9C00LDRgtGMINC90L7QstC+0LPQviDQv9C+0LvRjNC30L7QstCw0YLQtdC70Y8gKFBPU1QgL3VzZXIpIgogICAgICAgICAgICBzaG9wLnVzZXJfc2VydmljZSAtPiBzaG9wLnVzZXJfZGF0YWJhc2UgItCh0L7RhdGA0LDQvdC40YLRjCDQtNCw0L3QvdGL0LUg0L4g0L/QvtC70YzQt9C+0LLQsNGC0LXQu9C1IiAKICAgICAgICB9CgogICAgICAgIGR5bmFtaWMgc2hvcCAiVUMwMiIgItCj0LTQsNC70LXQvdC40LUg0L/QvtC70YzQt9C+0LLQsNGC0LXQu9GPIiB7CiAgICAgICAgICAgIGF1dG9MYXlvdXQKICAgICAgICAgICAgdXNlciAtPiBzaG9wLnVzZXJfc2VydmljZSAi0KPQtNCw0LvQuNGC0Ywg0L3QvtCy0L7Qs9C+INC/0L7Qu9GM0LfQvtCy0LDRgtC10LvRjyAoREVMRVRFIC91c2VyKSIKICAgICAgICAgICAgc2hvcC51c2VyX3NlcnZpY2UgLT4gc2hvcC51c2VyX2RhdGFiYXNlICLQo9C00LDQu9C40YLRjCDQtNCw0L3QvdGL0LUg0L4g0L/QvtC70YzQt9C+0LLQsNGC0LXQu9C1IiAKICAgICAgICB9CgogICAgICAgIGR5bmFtaWMgc2hvcCAiVUMwMyIgItCh0L7RhdGA0LDQvdC40YLRjCDQtNCw0L3QvdGL0LUg0L4g0YLQvtCy0LDRgNCw0YUiIHsKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgICAgICBzaG9wLnByb2R1Y3Rfc2VydmljZSAtPiBzaG9wLnNob3BfZGF0YWJhc2UgItCh0L7RhdGA0LDQvdC40YLRjCDQtNCw0L3QvdGL0LUg0L4g0YLQvtCy0LDRgNCw0YUiIAogICAgICAgIH0KCiAgICAgICAgZHluYW1pYyBzaG9wICJVQzA0IiAi0KHQvtGF0YDQsNC90LjRgtGMINC00LDQvdC90YvQtSDQviDQutC+0YDQt9C40L3QtSIgewogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgICAgIHNob3AuYmFza2V0X3NlcnZpY2UgLT4gc2hvcC51c2VyX3NlcnZpY2UgItCe0YLQv9GA0LDQstC40YLRjCDQtNCw0L3QvdGL0LUg0L4g0LrQvtGA0LfQuNC90LUiCiAgICAgICAgICAgIHNob3AudXNlcl9zZXJ2aWNlIC0+IHNob3AucHJvZHVjdF9zZXJ2aWNlICLQntGC0L/RgNCw0LLQuNGC0Ywg0LTQsNC90L3Ri9C1INC+INC60L7RgNC30LjQvdC1IgogICAgICAgICAgICBzaG9wLnByb2R1Y3Rfc2VydmljZSAtPiBzaG9wLnNob3BfZGF0YWJhc2UgItCh0L7RhdGA0LDQvdC40YLRjCDQtNCw0L3QvdGL0LUg0L4g0LrQvtGA0LfQuNC90LUiIAogICAgICAgIH0KCgogICAgICAgIHN0eWxlcyB7CiAgICAgICAgICAgIGVsZW1lbnQgImRhdGFiYXNlIiB7CiAgICAgICAgICAgICAgICBzaGFwZSBjeWxpbmRlcgogICAgICAgICAgICB9CiAgICAgICAgfQogICAgfQp9Cg=="
+  },
+  "views" : {
+    "configuration" : {
+      "branding" : { },
+      "lastSavedView" : "SystemLandscape-001",
+      "metadataSymbols" : "SquareBrackets",
+      "properties" : {
+        "structurizr.tooltips" : "true"
+      },
+      "styles" : {
+        "elements" : [ {
+          "shape" : "Cylinder",
+          "tag" : "database"
+        } ]
+      },
+      "terminology" : { },
+      "themes" : [ "https://static.structurizr.com/themes/default/theme.json" ]
+    },
+    "containerViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 600,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "dimensions" : {
+        "height" : 3065,
+        "width" : 3635
+      },
+      "elements" : [ {
+        "id" : "1",
+        "x" : 1395,
+        "y" : 200
+      }, {
+        "id" : "3",
+        "x" : 1370,
+        "y" : 1050
+      }, {
+        "id" : "4",
+        "x" : 220,
+        "y" : 1650
+      }, {
+        "id" : "5",
+        "x" : 2945,
+        "y" : 1650
+      }, {
+        "id" : "6",
+        "x" : 845,
+        "y" : 2400
+      }, {
+        "id" : "7",
+        "x" : 1895,
+        "y" : 2400
+      }, {
+        "id" : "8",
+        "x" : 2945,
+        "y" : 2400
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "generatedKey" : true,
+      "key" : "Container-001",
+      "order" : 3,
+      "relationships" : [ {
+        "id" : "10"
+      }, {
+        "id" : "11"
+      }, {
+        "id" : "12"
+      }, {
+        "id" : "13"
+      }, {
+        "id" : "15"
+      }, {
+        "id" : "9"
+      } ],
+      "softwareSystemId" : "2"
+    } ],
+    "deploymentViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 600,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "dimensions" : {
+        "height" : 2852,
+        "width" : 3830
+      },
+      "elements" : [ {
+        "id" : "16",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "17",
+        "x" : 1690,
+        "y" : 219
+      }, {
+        "id" : "18",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "19",
+        "x" : 1690,
+        "y" : 1119
+      }, {
+        "id" : "21",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "22",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "23",
+        "x" : 240,
+        "y" : 2169
+      }, {
+        "id" : "25",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "26",
+        "x" : 1690,
+        "y" : 2169
+      }, {
+        "id" : "28",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "29",
+        "x" : 3140,
+        "y" : 2169
+      } ],
+      "environment" : "Production",
+      "generatedKey" : true,
+      "key" : "Deployment-001",
+      "order" : 4,
+      "relationships" : [ {
+        "id" : "20"
+      }, {
+        "id" : "24"
+      }, {
+        "id" : "27"
+      }, {
+        "id" : "30"
+      } ],
+      "softwareSystemId" : "2"
+    } ],
+    "dynamicViews" : [ {
+      "automaticLayout" : {
+        "applied" : true,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "description" : "Добавление нового пользователя",
+      "dimensions" : {
+        "height" : 2065,
+        "width" : 930
+      },
+      "elementId" : "2",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 239,
+        "y" : 200
+      }, {
+        "id" : "3",
+        "x" : 239,
+        "y" : 800
+      }, {
+        "id" : "6",
+        "x" : 239,
+        "y" : 1400
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "UC01",
+      "order" : 5,
+      "relationships" : [ {
+        "description" : "Создать нового пользователя (POST /user)",
+        "id" : "15",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "Сохранить данные о пользователе",
+        "id" : "9",
+        "order" : "2",
+        "response" : false
+      } ]
+    }, {
+      "automaticLayout" : {
+        "applied" : true,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "description" : "Удаление пользователя",
+      "dimensions" : {
+        "height" : 2065,
+        "width" : 930
+      },
+      "elementId" : "2",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 239,
+        "y" : 200
+      }, {
+        "id" : "3",
+        "x" : 239,
+        "y" : 800
+      }, {
+        "id" : "6",
+        "x" : 239,
+        "y" : 1400
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "UC02",
+      "order" : 6,
+      "relationships" : [ {
+        "description" : "Удалить нового пользователя (DELETE /user)",
+        "id" : "15",
+        "order" : "1",
+        "response" : false
+      }, {
+        "description" : "Удалить данные о пользователе",
+        "id" : "9",
+        "order" : "2",
+        "response" : false
+      } ]
+    }, {
+      "automaticLayout" : {
+        "applied" : true,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "description" : "Сохранить данные о товарах",
+      "dimensions" : {
+        "height" : 1485,
+        "width" : 930
+      },
+      "elementId" : "2",
+      "elements" : [ {
+        "id" : "5",
+        "x" : 239,
+        "y" : 219
+      }, {
+        "id" : "8",
+        "x" : 239,
+        "y" : 819
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "UC03",
+      "order" : 7,
+      "relationships" : [ {
+        "description" : "Сохранить данные о товарах",
+        "id" : "13",
+        "order" : "1",
+        "response" : false
+      } ]
+    }, {
+      "automaticLayout" : {
+        "applied" : true,
+        "edgeSeparation" : 0,
+        "implementation" : "Graphviz",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "description" : "Сохранить данные о корзине",
+      "dimensions" : {
+        "height" : 2685,
+        "width" : 930
+      },
+      "elementId" : "2",
+      "elements" : [ {
+        "id" : "3",
+        "x" : 239,
+        "y" : 819
+      }, {
+        "id" : "4",
+        "x" : 239,
+        "y" : 219
+      }, {
+        "id" : "5",
+        "x" : 239,
+        "y" : 1419
+      }, {
+        "id" : "8",
+        "x" : 239,
+        "y" : 2019
+      } ],
+      "externalBoundariesVisible" : false,
+      "key" : "UC04",
+      "order" : 8,
+      "relationships" : [ {
+        "description" : "Отправить данные о корзине",
+        "id" : "11",
+        "order" : "1",
+        "response" : true
+      }, {
+        "description" : "Отправить данные о корзине",
+        "id" : "12",
+        "order" : "2",
+        "response" : false
+      }, {
+        "description" : "Сохранить данные о корзине",
+        "id" : "13",
+        "order" : "3",
+        "response" : false
+      } ]
+    } ],
+    "systemContextViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 600,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "dimensions" : {
+        "height" : 1400,
+        "width" : 850
+      },
+      "elements" : [ {
+        "id" : "1",
+        "x" : 224,
+        "y" : 200
+      }, {
+        "id" : "2",
+        "x" : 199,
+        "y" : 900
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "generatedKey" : true,
+      "key" : "SystemContext-001",
+      "order" : 2,
+      "relationships" : [ {
+        "id" : "14"
+      } ],
+      "softwareSystemId" : "2"
+    } ],
+    "systemLandscapeViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 600,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "dimensions" : {
+        "height" : 1400,
+        "width" : 850
+      },
+      "elements" : [ {
+        "id" : "1",
+        "x" : 224,
+        "y" : 200
+      }, {
+        "id" : "2",
+        "x" : 199,
+        "y" : 900
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "generatedKey" : true,
+      "key" : "SystemLandscape-001",
+      "order" : 1,
+      "relationships" : [ {
+        "id" : "14"
+      } ]
+    } ]
+  }
+}
