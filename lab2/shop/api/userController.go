@@ -2,11 +2,12 @@ package api
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"shop/hash"
 	"shop/models"
 	"shop/services"
+
+	"github.com/gin-gonic/gin"
 )
 
 type UserController struct {
@@ -22,29 +23,37 @@ func UserRegisterRoutes(r *gin.Engine, userService *services.UserService) {
 
 	routes := r.Group("/users")
 	routes.POST("/", userController.CreateUser)
+	routes.GET("/", userController.GetUsers)
+	routes.GET("/:id", userController.GetUser)
+	routes.PUT("/:id", userController.UpdateUser)
+	routes.DELETE("/:id", userController.DeleteUser)
 }
 
 func (controller UserController) CreateUser(c *gin.Context) {
-	user := new(models.User)
+	newUser := new(models.SignUpUser)
 
-	if err := c.BindJSON(user); err != nil {
+	if err := c.BindJSON(newUser); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	hashedPass, err := hash.HashPassword(user.Password)
+	hashedPass, err := hash.HashPassword(newUser.Password)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	user.Password = hashedPass
+	insertUser := new(models.User)
+
+	insertUser.Name = newUser.Name
+	insertUser.Lastname = newUser.Lastname
+	insertUser.Password = hashedPass
 
 	ctx := context.Background()
-	if err := controller.UserService.InsertUser(user, ctx); err != nil {
+	if err := controller.UserService.InsertUser(insertUser, ctx); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	c.JSON(http.StatusCreated, user)
+	c.JSON(http.StatusCreated, insertUser)
 }
 
 func (controller UserController) GetUser(c *gin.Context) {
@@ -73,7 +82,7 @@ func (controller UserController) GetUsers(c *gin.Context) {
 }
 
 func (controller UserController) UpdateUser(c *gin.Context) {
-	updatedUser := new(models.User)
+	updatedUser := new(models.SignUpUser)
 
 	// get request body
 	if err := c.BindJSON(updatedUser); err != nil {
@@ -89,6 +98,7 @@ func (controller UserController) UpdateUser(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+
 	previousHashedPass := previousUser.Password
 	IsPassSame := hash.CheckPasswordHash(updatedUser.Password, previousHashedPass)
 	// password has changed
@@ -102,7 +112,15 @@ func (controller UserController) UpdateUser(c *gin.Context) {
 		updatedUser.Password = hashedPass
 	}
 
-	err = controller.UserService.UpdateUser(id, updatedUser, ctx)
+	insertUser := new(models.User)
+	insertUser.Name = updatedUser.Name
+	insertUser.Lastname = updatedUser.Lastname
+	insertUser.Password = updatedUser.Password
+	insertUser.Id = previousUser.Id
+	insertUser.BasketId = previousUser.BasketId
+	insertUser.CreationDate = previousUser.CreationDate
+
+	err = controller.UserService.UpdateUser(id, insertUser, ctx)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return

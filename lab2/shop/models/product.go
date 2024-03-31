@@ -6,13 +6,13 @@ import (
 )
 
 type Product struct {
-	Id           string
-	Price        decimal.Decimal
-	IsSold       bool
-	CreationDate time.Time
-	SoldDate     time.Time
-	Name         string
-	Description  string
-	Categories   []string
-	Material     string
+	Id           string          `json:"id"`
+	Price        decimal.Decimal `json:"price"`
+	IsSold       bool            `json:"isSold"`
+	CreationDate time.Time       `json:"creationDate"`
+	SoldDate     time.Time       `json:"soldDate"`
+	Name         string          `json:"name"`
+	Description  string          `json:"description"`
+	Categories   []string        `json:"categories"`
+	Material     string          `json:"material"`
 }

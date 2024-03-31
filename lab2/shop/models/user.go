@@ -3,10 +3,10 @@ package models
 import "time"
 
 type User struct {
-	Id           string
-	Name         string
-	Lastname     string
-	Password     string
-	CreationDate time.Time
-	BasketId     string
+	Id           string    `json:"id"`
+	Name         string    `json:"name"`
+	Lastname     string    `json:"lastname"`
+	Password     string    `json:"password"`
+	CreationDate time.Time `json:"creationDate"`
+	BasketId     string    `json:"basketId"`
 }

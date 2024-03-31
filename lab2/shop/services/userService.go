@@ -3,7 +3,9 @@ package services
 import (
 	"context"
 	"errors"
+	"github.com/brianvoe/gofakeit/v7"
 	"github.com/jackc/pgx/v5"
+	"github.com/shopspring/decimal"
 	"log"
 	"shop/db"
 	"shop/models"
@@ -27,8 +29,33 @@ func (service UserService) InsertUser(user *models.User, ctx context.Context) er
 	}
 	defer conn.Release()
 
+	userId := gofakeit.UUID()
+
+	// First we need create a basket, insert it and get an id
+	// Insert a basket
+	newBasket := &models.Basket{
+		Id:         gofakeit.UUID(),
+		UserId:     userId,
+		TotalPrice: decimal.NewFromInt(0),
+		CountMap:   make(map[string]int),
+		ItemsMap:   make(map[string]models.Product),
+	}
+	query := `INSERT INTO Basket 
+    (Id, UserId, TotalPrice, CountMap, ItemsMap)
+	values($1, $2, $3, $4, $5)`
+	_, err = conn.Exec(ctx, query, newBasket.Id, newBasket.UserId, newBasket.TotalPrice,
+		newBasket.CountMap, newBasket.ItemsMap)
+	if err != nil {
+		log.Println("cannot insert into Users", err)
+		return err
+	}
+
+	user.Id = userId
+	user.BasketId = newBasket.Id
+	user.CreationDate = gofakeit.Date()
+
 	// Insert into Users
-	query := `INSERT INTO Users 
+	query = `INSERT INTO Users 
     (Id, Name, Lastname, Password, CreationDate, BasketId)
 	values($1, $2, $3, $4, $5, $6)`
 	_, err = conn.Exec(ctx, query, user.Id, user.Name, user.Lastname, user.Password, user.CreationDate,
