@@ -35,8 +35,8 @@ func UserRegisterRoutes(r *gin.Engine, userService *services.UserService) {
 // @Accept  json
 // @Produce  json
 // @Param input body models.SignUpUser true "user"
-// @Success 201 {object} models.User "data"
-// @Failure 400 {object} error
+// @Success 201 {object} models.User "created"
+// @Failure 400 {object} error "Bad request"
 // @Router /users/ [post]
 func (controller UserController) CreateUser(c *gin.Context) {
 	newUser := new(models.SignUpUser)
@@ -66,6 +66,16 @@ func (controller UserController) CreateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, insertUser)
 }
 
+// @Summary Get an user
+// @Tags User API
+// @Description Get an user
+// @ID get-user
+// @Accept  json
+// @Produce  json
+// @Param id path string true "user ID"
+// @Success 200 {object} models.User "OK"
+// @Failure 404 {object} error "Not found"
+// @Router /users/{id} [get]
 func (controller UserController) GetUser(c *gin.Context) {
 	id := c.Param("id")
 	var user *models.User
@@ -78,6 +88,15 @@ func (controller UserController) GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+// @Summary Get Users
+// @Tags User API
+// @Description Get Users
+// @ID get-users
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.User "OK"
+// @Failure 404 {object} error "Not found"
+// @Router /users [get]
 func (controller UserController) GetUsers(c *gin.Context) {
 	users := make([]models.User, 0)
 	var err error
@@ -91,6 +110,18 @@ func (controller UserController) GetUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
+// @Summary Update an user
+// @Tags User API
+// @Description Update an user
+// @ID update-user
+// @Accept  json
+// @Produce  json
+// @Param id path string true "user ID"
+// @Param input body models.SignUpUser true "updated user"
+// @Success 200 {object} models.User "OK"
+// @Failure 400 {object} error "Bad request"
+// @Failure 404 {object} error "Not found"
+// @Router /users/{id} [put]
 func (controller UserController) UpdateUser(c *gin.Context) {
 	updatedUser := new(models.SignUpUser)
 
@@ -105,7 +136,7 @@ func (controller UserController) UpdateUser(c *gin.Context) {
 
 	previousUser, err := controller.UserService.GetUserById(id, ctx)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+		c.AbortWithError(http.StatusNotFound, err)
 		return
 	}
 
@@ -139,6 +170,16 @@ func (controller UserController) UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, nil)
 }
 
+// @Summary Delete a user
+// @Tags User API
+// @Description Delete a user
+// @ID delete-user
+// @Accept  json
+// @Produce  json
+// @Param id path string true "user ID"
+// @Success 200 {object} string "OK"
+// @Failure 404 {object} error "Not found"
+// @Router /users/{id} [delete]
 func (controller UserController) DeleteUser(c *gin.Context) {
 	id := c.Param("id")
 	ctx := context.Background()

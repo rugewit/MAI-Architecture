@@ -94,10 +94,10 @@ func (service UserService) GetUserById(id string, ctx context.Context) (*models.
 	row := conn.QueryRow(ctx, query, id)
 
 	// Initialize a user object to store the result
-	user := new(models.User)
+	user := models.User{}
 
 	// Scan the row into user object
-	err = row.Scan(user.Id, user.Name, user.Lastname, user.Password, user.CreationDate)
+	err = row.Scan(&user.Id, &user.Name, &user.Lastname, &user.Password, &user.CreationDate)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			// Return nil if no user found with the given ID
@@ -107,7 +107,7 @@ func (service UserService) GetUserById(id string, ctx context.Context) (*models.
 		return nil, err
 	}
 
-	return user, nil
+	return &user, nil
 }
 
 func (service UserService) GetManyUsers(limit int, ctx context.Context) ([]models.User, error) {
@@ -148,4 +148,24 @@ func (service UserService) GetManyUsers(limit int, ctx context.Context) ([]model
 	}
 
 	return users, nil
+}
+
+func (service UserService) CheckUserIDExists(id string, ctx context.Context) (bool, error) {
+	conn, err := service.Db.Pool.Acquire(ctx)
+	if err != nil {
+		log.Println("cannot acquire a database connection", err)
+		return false, err
+	}
+	defer conn.Release()
+
+	// Query to check if id exists in the Users table
+	query := "SELECT EXISTS(SELECT 1 FROM Users WHERE Id = $1)"
+	var exists bool
+	err = conn.QueryRow(ctx, query, id).Scan(&exists)
+	if err != nil {
+		log.Println("cannot check if ID exists", err)
+		return false, err
+	}
+
+	return exists, nil
 }
