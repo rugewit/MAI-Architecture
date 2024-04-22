@@ -1,0 +1,62 @@
+basePath: /
+definitions:
+  models.SignUpUser:
+    properties:
+      lastname:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  models.User:
+    properties:
+      creationDate:
+        type: string
+      id:
+        type: string
+      lastname:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  title: Магазин
+  version: "1.0"
+paths:
+  /users/:
+    post:
+      consumes:
+      - application/json
+      description: Create an user
+      operationId: create-user
+      parameters:
+      - description: user
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignUpUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: data
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema: {}
+      summary: Create an user
+      tags:
+      - User API
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

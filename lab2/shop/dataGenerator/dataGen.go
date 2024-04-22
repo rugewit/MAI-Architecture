@@ -69,27 +69,7 @@ func createTables() {
                        Name VARCHAR(255),
                        Lastname VARCHAR(255),
                        Password VARCHAR(255),
-                       CreationDate TIMESTAMP,
-                       BasketId VARCHAR(255)
-);`,
-		`CREATE TABLE Basket (
-                        Id VARCHAR(255) PRIMARY KEY,
-                        UserId VARCHAR(255),
-                        TotalPrice DECIMAL,
-                        FOREIGN KEY (UserId) REFERENCES Users(Id),
-                        CountMap JSONB,
-                        ItemsMap JSONB
-);`,
-		`CREATE TABLE Product (
-                         Id VARCHAR(255) PRIMARY KEY,
-                         Price DECIMAL,
-                         IsSold BOOLEAN,
-                         CreationDate TIMESTAMP,
-                         SoldDate TIMESTAMP,
-                         Name VARCHAR(255),
-                         Description TEXT,
-                         Categories TEXT[],
-                         Material VARCHAR(255)
+                       CreationDate TIMESTAMP
 );`,
 	}
 
@@ -150,14 +130,6 @@ func writeSQLCommands[T any](file *os.File, tableName string, data []T, keys []s
 					return
 				}
 				value = fmt.Sprintf("'%s'", string(dictJson))
-			case map[string]models.Product:
-				dict := field.Interface().(map[string]models.Product)
-				dictJson, err := json.Marshal(dict)
-				if err != nil {
-					fmt.Println("error marshelling to json")
-					return
-				}
-				value = fmt.Sprintf("'%s'", string(dictJson))
 			default:
 				value = fmt.Sprintf("'%v'", field)
 			}
@@ -196,65 +168,6 @@ func GenFakeData(userCount, productCount int) {
 		users[i].CreationDate = gofakeit.PastDate()
 	}
 
-	// populate products
-	products := make([]models.Product, productCount)
-	for i := 0; i < productCount; i++ {
-		fakeProduct := gofakeit.Product()
-		products[i].Id = gofakeit.UUID()
-		// task: 1/6 of products are sold
-		products[i].IsSold = false
-		num := rand.Intn(6)
-		if num == 5 {
-			products[i].IsSold = true
-		}
-		products[i].Price = decimal.NewFromFloat(gofakeit.Price(1.0, 1000.0))
-		products[i].CreationDate = gofakeit.PastDate()
-		products[i].Categories = fakeProduct.Categories
-		products[i].Name = fakeProduct.Name
-		products[i].Description = fakeProduct.Description
-		products[i].Material = fakeProduct.Material
-
-		if products[i].IsSold {
-			startDate := products[i].CreationDate
-			endDate := startDate.AddDate(1, 5, 12)
-			products[i].SoldDate = gofakeit.DateRange(startDate, endDate)
-			//randomUserIndex := rand.Intn(len(users))
-			//products[i].UserId = users[randomUserIndex].Id
-		}
-	}
-
-	// populate baskets
-	baskets := make([]models.Basket, userCount)
-	for i := 0; i < userCount; i++ {
-		baskets[i].Id = gofakeit.UUID()
-		baskets[i].UserId = users[i].Id
-		users[i].BasketId = baskets[i].Id
-
-		baskets[i].CountMap = make(map[string]int)
-		baskets[i].ItemsMap = make(map[string]models.Product)
-		// task: 25% of user have non-empty basket
-		// num may be from 0 to 3 (4 numbers)
-		num := rand.Intn(4)
-		// the probability that num equals 3 is 25%
-		if num == 3 {
-			// populate basket with products
-			basketProductsCount := rand.Intn(8) + 1
-			items := pickNItems(products, basketProductsCount)
-			for _, item := range items {
-				baskets[i].CountMap[item.Id] += 1
-				baskets[i].ItemsMap[item.Id] = item
-			}
-			totalPrice := decimal.NewFromInt(0)
-			for curId := range baskets[i].ItemsMap {
-				price := baskets[i].ItemsMap[curId].Price
-				count := decimal.NewFromInt(int64(baskets[i].CountMap[curId]))
-				fmt.Printf("price=%v count=%v\n", price, count)
-				totalPrice = totalPrice.Add(price.Mul(count))
-			}
-			fmt.Printf("total price:%v\n", totalPrice)
-			baskets[i].TotalPrice = totalPrice
-		}
-	}
 	// export to sql
 	createTables()
 
@@ -265,28 +178,10 @@ func GenFakeData(userCount, productCount int) {
 	}
 	defer file.Close()
 
-	//keys := []string{"Id", "Name", "Lastname", "Password", "CreationDate", "BasketId"}
 	keys, err := getFieldNamesAsStringSlice(users[0])
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	writeSQLCommands(file, "Users", users, keys)
-
-	//keys = []string{"Id", "Price", "IsSold", "CreationDate", "SoldDate", "Name", "Description",
-	//	"Categories", "Material"}
-	keys, err = getFieldNamesAsStringSlice(products[0])
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	writeSQLCommands(file, "Product", products, keys)
-
-	//keys = []string{"Id", "UserId", "TotalPrice", "CountMap", "ItemsMap"}
-	keys, err = getFieldNamesAsStringSlice(baskets[0])
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	writeSQLCommands(file, "Basket", baskets, keys)
 }

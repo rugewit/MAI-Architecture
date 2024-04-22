@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/jackc/pgx/v5"
-	"github.com/shopspring/decimal"
 	"log"
 	"shop/db"
 	"shop/models"
@@ -31,35 +30,14 @@ func (service UserService) InsertUser(user *models.User, ctx context.Context) er
 
 	userId := gofakeit.UUID()
 
-	// First we need create a basket, insert it and get an id
-	// Insert a basket
-	newBasket := &models.Basket{
-		Id:         gofakeit.UUID(),
-		UserId:     userId,
-		TotalPrice: decimal.NewFromInt(0),
-		CountMap:   make(map[string]int),
-		ItemsMap:   make(map[string]models.Product),
-	}
-	query := `INSERT INTO Basket 
-    (Id, UserId, TotalPrice, CountMap, ItemsMap)
-	values($1, $2, $3, $4, $5)`
-	_, err = conn.Exec(ctx, query, newBasket.Id, newBasket.UserId, newBasket.TotalPrice,
-		newBasket.CountMap, newBasket.ItemsMap)
-	if err != nil {
-		log.Println("cannot insert into Users", err)
-		return err
-	}
-
 	user.Id = userId
-	user.BasketId = newBasket.Id
 	user.CreationDate = gofakeit.Date()
 
 	// Insert into Users
-	query = `INSERT INTO Users 
-    (Id, Name, Lastname, Password, CreationDate, BasketId)
+	query := `INSERT INTO Users 
+    (Id, Name, Lastname, Password, CreationDate)
 	values($1, $2, $3, $4, $5, $6)`
-	_, err = conn.Exec(ctx, query, user.Id, user.Name, user.Lastname, user.Password, user.CreationDate,
-		user.BasketId)
+	_, err = conn.Exec(ctx, query, user.Id, user.Name, user.Lastname, user.Password, user.CreationDate)
 	if err != nil {
 		log.Println("cannot insert into Users", err)
 		return err
@@ -94,9 +72,8 @@ func (service UserService) UpdateUser(id string, newUser *models.User, ctx conte
 	defer conn.Release()
 
 	// Update Users
-	query := `UPDATE Users SET Name = $1, Lastname = $2, Password = $3, CreationDate = $4, BasketId = $5 WHERE Id = $6`
-	_, err = conn.Exec(ctx, query, newUser.Name, newUser.Lastname, newUser.Password, newUser.CreationDate,
-		newUser.BasketId, id)
+	query := `UPDATE Users SET Name = $1, Lastname = $2, Password = $3, CreationDate = $4 WHERE Id = $5`
+	_, err = conn.Exec(ctx, query, newUser.Name, newUser.Lastname, newUser.Password, newUser.CreationDate, id)
 	if err != nil {
 		log.Println("cannot update user", err)
 		return err
@@ -113,14 +90,14 @@ func (service UserService) GetUserById(id string, ctx context.Context) (*models.
 	defer conn.Release()
 
 	// Query to get user by ID
-	query := `SELECT Id, Name, Lastname, Password, CreationDate, BasketId FROM Users WHERE Id = $1`
+	query := `SELECT Id, Name, Lastname, Password, CreationDate FROM Users WHERE Id = $1`
 	row := conn.QueryRow(ctx, query, id)
 
 	// Initialize a user object to store the result
 	user := new(models.User)
 
 	// Scan the row into user object
-	err = row.Scan(user.Id, user.Name, user.Lastname, user.Password, user.CreationDate, user.BasketId)
+	err = row.Scan(user.Id, user.Name, user.Lastname, user.Password, user.CreationDate)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			// Return nil if no user found with the given ID
@@ -142,7 +119,7 @@ func (service UserService) GetManyUsers(limit int, ctx context.Context) ([]model
 	defer conn.Release()
 
 	// Query to get many users with limit
-	query := `SELECT Id, Name, Lastname, Password, CreationDate, BasketId FROM Users LIMIT $1`
+	query := `SELECT Id, Name, Lastname, Password, CreationDate FROM Users LIMIT $1`
 	rows, err := conn.Query(ctx, query, limit)
 	if err != nil {
 		log.Println("cannot get many users", err)
@@ -156,7 +133,7 @@ func (service UserService) GetManyUsers(limit int, ctx context.Context) ([]model
 	// Iterate through the rows and scan each user into the slice
 	for rows.Next() {
 		var user models.User
-		err := rows.Scan(&user.Id, &user.Name, &user.Lastname, &user.Password, &user.CreationDate, &user.BasketId)
+		err := rows.Scan(&user.Id, &user.Name, &user.Lastname, &user.Password, &user.CreationDate)
 		if err != nil {
 			log.Println("error scanning user row", err)
 			return nil, err

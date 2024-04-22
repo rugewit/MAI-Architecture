@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/spf13/viper"
 	"log"
-	"shop/additional"
+	"shop/config"
 )
 
 type PostgresDb struct {
@@ -19,17 +18,11 @@ type PostgresDb struct {
 	ctx      context.Context
 }
 
-func NewPostgresDb(ctx context.Context) (*PostgresDb, error) {
-	err := additional.LoadViper("env/.env")
-	if err != nil {
-		log.Fatalln("cannot load viper")
-		return nil, nil
-	}
-
-	dbPort := viper.Get("DB_PORT").(string)
-	dbUser := viper.Get("DB_USER").(string)
-	dbPassword := viper.Get("DB_PASSWORD").(string)
-	dbName := viper.Get("DB_NAME").(string)
+func NewPostgresDb(ctx context.Context, pgConfig *config.PostgresConfig) (*PostgresDb, error) {
+	dbPort := pgConfig.Port
+	dbUser := pgConfig.User
+	dbPassword := pgConfig.Password
+	dbName := pgConfig.Name
 
 	dbUrl := fmt.Sprintf("host=0.0.0.0 port=%s user=%s password=%s dbname=%s sslmode=disable",
 		dbPort, dbUser, dbPassword, dbName)

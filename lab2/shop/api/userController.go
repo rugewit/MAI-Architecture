@@ -2,12 +2,11 @@ package api
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"shop/hash"
 	"shop/models"
 	"shop/services"
-
-	"github.com/gin-gonic/gin"
 )
 
 type UserController struct {
@@ -29,6 +28,16 @@ func UserRegisterRoutes(r *gin.Engine, userService *services.UserService) {
 	routes.DELETE("/:id", userController.DeleteUser)
 }
 
+// @Summary Create an user
+// @Tags User API
+// @Description Create an user
+// @ID create-user
+// @Accept  json
+// @Produce  json
+// @Param input body models.SignUpUser true "user"
+// @Success 201 {object} models.User "data"
+// @Failure 400 {object} error
+// @Router /users/ [post]
 func (controller UserController) CreateUser(c *gin.Context) {
 	newUser := new(models.SignUpUser)
 
@@ -42,11 +51,12 @@ func (controller UserController) CreateUser(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	insertUser := new(models.User)
 
-	insertUser.Name = newUser.Name
-	insertUser.Lastname = newUser.Lastname
-	insertUser.Password = hashedPass
+	insertUser := &models.User{
+		Name:     newUser.Name,
+		Lastname: newUser.Lastname,
+		Password: hashedPass,
+	}
 
 	ctx := context.Background()
 	if err := controller.UserService.InsertUser(insertUser, ctx); err != nil {
@@ -112,13 +122,13 @@ func (controller UserController) UpdateUser(c *gin.Context) {
 		updatedUser.Password = hashedPass
 	}
 
-	insertUser := new(models.User)
-	insertUser.Name = updatedUser.Name
-	insertUser.Lastname = updatedUser.Lastname
-	insertUser.Password = updatedUser.Password
-	insertUser.Id = previousUser.Id
-	insertUser.BasketId = previousUser.BasketId
-	insertUser.CreationDate = previousUser.CreationDate
+	insertUser := &models.User{
+		Id:           previousUser.Id,
+		Name:         updatedUser.Name,
+		Lastname:     updatedUser.Lastname,
+		Password:     updatedUser.Password,
+		CreationDate: previousUser.CreationDate,
+	}
 
 	err = controller.UserService.UpdateUser(id, insertUser, ctx)
 	if err != nil {
