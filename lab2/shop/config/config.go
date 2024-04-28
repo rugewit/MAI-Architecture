@@ -9,4 +9,5 @@ type PostgresConfig struct {
 	User     string
 	Password string
 	Name     string
+	Host     string
 }

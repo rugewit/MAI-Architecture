@@ -39,8 +39,8 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "404": {
-                        "description": "Not found",
+                    "400": {
+                        "description": "Bad request",
                         "schema": {}
                     }
                 }
@@ -85,6 +85,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/pattern-search": {
+            "post": {
+                "description": "Pattern Search. % The percent sign represents zero, one, or multiple characters. _ The underscore sign represents one, single character",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "Pattern Search",
+                "operationId": "pattern-search-users",
+                "parameters": [
+                    {
+                        "description": "pattern search request",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.PatternSearchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/users/{id}": {
             "get": {
                 "description": "Get an user",
@@ -114,6 +156,10 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.User"
                         }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {}
                     },
                     "404": {
                         "description": "Not found",
@@ -207,17 +253,33 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.PatternSearchRequest": {
+            "type": "object",
+            "properties": {
+                "lastNamePattern": {
+                    "type": "string",
+                    "example": "%_%"
+                },
+                "namePattern": {
+                    "type": "string",
+                    "example": "%_%"
+                }
+            }
+        },
         "models.SignUpUser": {
             "type": "object",
             "properties": {
                 "lastname": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Ivanov"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Alex"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "qwerty"
                 }
             }
         },

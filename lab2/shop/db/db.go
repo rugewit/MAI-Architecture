@@ -23,9 +23,10 @@ func NewPostgresDb(ctx context.Context, pgConfig *config.PostgresConfig) (*Postg
 	dbUser := pgConfig.User
 	dbPassword := pgConfig.Password
 	dbName := pgConfig.Name
+	dbHost := pgConfig.Host
 
-	dbUrl := fmt.Sprintf("host=0.0.0.0 port=%s user=%s password=%s dbname=%s sslmode=disable",
-		dbPort, dbUser, dbPassword, dbName)
+	dbUrl := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		dbHost, dbPort, dbUser, dbPassword, dbName)
 
 	pool, err := pgxpool.New(ctx, dbUrl)
 	if err != nil {

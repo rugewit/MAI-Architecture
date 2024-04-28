@@ -52,6 +52,7 @@ func main() {
 		User:     viper.GetString("DB_USER"),
 		Password: viper.GetString("DB_PASSWORD"),
 		Name:     viper.GetString("DB_NAME"),
+		Host:     viper.GetString("DB_HOST"),
 	}
 	postgres, err := db.NewPostgresDb(ctx, pgConfig)
 	if err != nil {

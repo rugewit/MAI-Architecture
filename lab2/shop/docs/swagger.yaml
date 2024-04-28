@@ -1,12 +1,24 @@
 basePath: /
 definitions:
+  models.PatternSearchRequest:
+    properties:
+      lastNamePattern:
+        example: '%_%'
+        type: string
+      namePattern:
+        example: '%_%'
+        type: string
+    type: object
   models.SignUpUser:
     properties:
       lastname:
+        example: Ivanov
         type: string
       name:
+        example: Alex
         type: string
       password:
+        example: qwerty
         type: string
     type: object
   models.User:
@@ -43,8 +55,8 @@ paths:
             items:
               $ref: '#/definitions/models.User'
             type: array
-        "404":
-          description: Not found
+        "400":
+          description: Bad request
           schema: {}
       summary: Get Users
       tags:
@@ -118,6 +130,9 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
+        "400":
+          description: Bad request
+          schema: {}
         "404":
           description: Not found
           schema: {}
@@ -155,6 +170,35 @@ paths:
           description: Not found
           schema: {}
       summary: Update an user
+      tags:
+      - User API
+  /users/pattern-search:
+    post:
+      consumes:
+      - application/json
+      description: Pattern Search. % The percent sign represents zero, one, or multiple
+        characters. _ The underscore sign represents one, single character
+      operationId: pattern-search-users
+      parameters:
+      - description: pattern search request
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.PatternSearchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "400":
+          description: Bad request
+          schema: {}
+      summary: Pattern Search
       tags:
       - User API
 swagger: "2.0"

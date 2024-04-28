@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"shop/hash"
@@ -24,6 +25,7 @@ func UserRegisterRoutes(r *gin.Engine, userService *services.UserService) {
 	routes.POST("/", userController.CreateUser)
 	routes.GET("/", userController.GetUsers)
 	routes.GET("/:id", userController.GetUser)
+	routes.POST("/pattern-search", userController.PatternSearchUsers)
 	routes.PUT("/:id", userController.UpdateUser)
 	routes.DELETE("/:id", userController.DeleteUser)
 }
@@ -74,6 +76,7 @@ func (controller UserController) CreateUser(c *gin.Context) {
 // @Produce  json
 // @Param id path string true "user ID"
 // @Success 200 {object} models.User "OK"
+// @Failure 400 {object} error "Bad request"
 // @Failure 404 {object} error "Not found"
 // @Router /users/{id} [get]
 func (controller UserController) GetUser(c *gin.Context) {
@@ -82,7 +85,11 @@ func (controller UserController) GetUser(c *gin.Context) {
 	var err error
 	ctx := context.Background()
 	if user, err = controller.UserService.GetUserById(id, ctx); err != nil {
-		c.AbortWithError(http.StatusNotFound, err)
+		if errors.Is(err, services.NotFoundUserErr) {
+			c.AbortWithError(http.StatusNotFound, err)
+		} else {
+			c.AbortWithError(http.StatusBadRequest, err)
+		}
 		return
 	}
 	c.JSON(http.StatusOK, user)
@@ -95,7 +102,7 @@ func (controller UserController) GetUser(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Success 200 {array} models.User "OK"
-// @Failure 404 {object} error "Not found"
+// @Failure 400 {object} error "Bad request"
 // @Router /users [get]
 func (controller UserController) GetUsers(c *gin.Context) {
 	users := make([]models.User, 0)
@@ -104,7 +111,7 @@ func (controller UserController) GetUsers(c *gin.Context) {
 	limit := 1000
 	ctx := context.Background()
 	if users, err = controller.UserService.GetManyUsers(limit, ctx); err != nil {
-		c.AbortWithError(http.StatusNotFound, err)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 	c.JSON(http.StatusOK, users)
@@ -136,7 +143,11 @@ func (controller UserController) UpdateUser(c *gin.Context) {
 
 	previousUser, err := controller.UserService.GetUserById(id, ctx)
 	if err != nil {
-		c.AbortWithError(http.StatusNotFound, err)
+		if errors.Is(err, services.NotFoundUserErr) {
+			c.AbortWithError(http.StatusNotFound, err)
+		} else {
+			c.AbortWithError(http.StatusBadRequest, err)
+		}
 		return
 	}
 
@@ -184,8 +195,43 @@ func (controller UserController) DeleteUser(c *gin.Context) {
 	id := c.Param("id")
 	ctx := context.Background()
 	if err := controller.UserService.DeleteUser(id, ctx); err != nil {
-		c.AbortWithError(http.StatusNotFound, err)
+		if errors.Is(err, services.NotFoundUserErr) {
+			c.AbortWithError(http.StatusNotFound, err)
+		} else {
+			c.AbortWithError(http.StatusBadRequest, err)
+		}
 		return
 	}
 	c.JSON(http.StatusOK, nil)
+}
+
+// @Summary Pattern Search
+// @Tags User API
+// @Description Pattern Search. % The percent sign represents zero, one, or multiple characters. _ The underscore sign represents one, single character
+// @ID pattern-search-users
+// @Accept  json
+// @Produce  json
+// @Param input body models.PatternSearchRequest true "pattern search request"
+// @Success 200 {array} models.User "OK"
+// @Failure 400 {object} error "Bad request"
+// @Router /users/pattern-search [post]
+func (controller UserController) PatternSearchUsers(c *gin.Context) {
+	users := make([]models.User, 0)
+	var err error
+
+	request := models.PatternSearchRequest{}
+
+	// get request body
+	if err := c.BindJSON(&request); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	limit := 1000
+	ctx := context.Background()
+	if users, err = controller.UserService.PatternSearchUsers(request.NamePattern, request.LastNamePattern, limit, ctx); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	c.JSON(http.StatusOK, users)
 }

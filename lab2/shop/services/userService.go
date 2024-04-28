@@ -36,7 +36,7 @@ func (service UserService) InsertUser(user *models.User, ctx context.Context) er
 	// Insert into Users
 	query := `INSERT INTO Users 
     (Id, Name, Lastname, Password, CreationDate)
-	values($1, $2, $3, $4, $5, $6)`
+	values($1, $2, $3, $4, $5)`
 	_, err = conn.Exec(ctx, query, user.Id, user.Name, user.Lastname, user.Password, user.CreationDate)
 	if err != nil {
 		log.Println("cannot insert into Users", err)
@@ -53,6 +53,13 @@ func (service UserService) DeleteUser(id string, ctx context.Context) error {
 	}
 	defer conn.Release()
 
+	exists, err := service.CheckUserIDExists(id, ctx)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return NotFoundUserErr
+	}
 	// Delete from Users
 	query := `DELETE FROM Users WHERE Id = $1`
 	_, err = conn.Exec(ctx, query, id)
@@ -81,6 +88,8 @@ func (service UserService) UpdateUser(id string, newUser *models.User, ctx conte
 	return nil
 }
 
+var NotFoundUserErr error = errors.New("user not found")
+
 func (service UserService) GetUserById(id string, ctx context.Context) (*models.User, error) {
 	conn, err := service.Db.Pool.Acquire(ctx)
 	if err != nil {
@@ -101,7 +110,7 @@ func (service UserService) GetUserById(id string, ctx context.Context) (*models.
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			// Return nil if no user found with the given ID
-			return nil, nil
+			return nil, NotFoundUserErr
 		}
 		log.Println("cannot get user by ID", err)
 		return nil, err
@@ -168,4 +177,45 @@ func (service UserService) CheckUserIDExists(id string, ctx context.Context) (bo
 	}
 
 	return exists, nil
+}
+
+func (service UserService) PatternSearchUsers(nameMask, lastnameMask string, limit int,
+	ctx context.Context) ([]models.User, error) {
+	conn, err := service.Db.Pool.Acquire(ctx)
+	if err != nil {
+		log.Println("cannot acquire a database connection", err)
+		return nil, err
+	}
+	defer conn.Release()
+
+	// Query to search users with limit and mask
+	query := `SELECT Id, Name, Lastname, Password, CreationDate FROM Users WHERE Name LIKE $1 AND Lastname LIKE $2 LIMIT $3`
+	rows, err := conn.Query(ctx, query, nameMask, lastnameMask, limit)
+	if err != nil {
+		log.Println("cannot search users", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Initialize a slice to store user objects
+	users := make([]models.User, 0)
+
+	// Iterate through the rows and scan each user into the slice
+	for rows.Next() {
+		var user models.User
+		err := rows.Scan(&user.Id, &user.Name, &user.Lastname, &user.Password, &user.CreationDate)
+		if err != nil {
+			log.Println("error scanning user row", err)
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	// Check for errors during rows iteration
+	if err = rows.Err(); err != nil {
+		log.Println("error iterating user rows", err)
+		return nil, err
+	}
+
+	return users, nil
 }

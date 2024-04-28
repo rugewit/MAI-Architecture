@@ -1,27 +1,25 @@
-# syntax=docker/dockerfile:1
-
+# Use the official Golang image as the base image
 FROM golang:1.22
 
-# Set destination for COPY
+# Set the current working directory inside the container
 WORKDIR /app
 
-# Download Go modules
-COPY go.mod go.sum ./
+# Copy the Go module files and download dependencies
+COPY ./go.mod ./
 RUN go mod download
 
-# Copy the source code. Note the slash at the end, as explained in
-# https://docs.docker.com/reference/dockerfile/#copy
-COPY *.go ./
+# Copy the rest of the application source code
+COPY ./ ./
 
-# Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /shop-app
+# Copy wait-for-it.sh into the container
+COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
+RUN chmod +x /usr/local/bin/wait-for-it.sh
 
-# Optional:
-# To bind to a TCP port, runtime parameters must be supplied to the docker command.
-# But we can document in the Dockerfile what ports
-# the application is going to listen on by default.
-# https://docs.docker.com/reference/dockerfile/#expose
+# Build the Go application
+RUN go build -o shop ./cmd/main.go
+
+# Expose port 8080 to the outside world
 EXPOSE 8081
 
-# Run
-CMD ["/shop-app"]
+# Update entrypoint to wait for PostgreSQL to be ready
+CMD ["sh", "-c", "/usr/local/bin/wait-for-it.sh postgres:5432 -- ./shop"]
