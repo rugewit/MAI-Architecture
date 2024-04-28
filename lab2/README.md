@@ -71,7 +71,7 @@ VALUES
 
 url: http://localhost:8081/swagger/index.html
 
-![image-20240428143944943](/home/rugewit/.config/Typora/typora-user-images/image-20240428143944943.png)
+![user api image](https://github.com/rugewit/MAI-Architecture/blob/main/lab2/images/1.png)
 
 #### OpenAPI
 
@@ -294,24 +294,24 @@ swagger: "2.0"
 
 **Получение всех пользователей**
 
-![image-20240428145116090](/home/rugewit/.config/Typora/typora-user-images/image-20240428145116090.png)
+![get all user image](https://github.com/rugewit/MAI-Architecture/blob/main/lab2/images/2.png)
 
 **Добавление нового пользователя**
 
-![image-20240428145232286](/home/rugewit/.config/Typora/typora-user-images/image-20240428145232286.png)
+![add a new user image](https://github.com/rugewit/MAI-Architecture/blob/main/lab2/images/3.png)
 
 **Поиск по маске**
 
-![image-20240428145318804](/home/rugewit/.config/Typora/typora-user-images/image-20240428145318804.png)
+![users pattern search](https://github.com/rugewit/MAI-Architecture/blob/main/lab2/images/4.png)
 
 **Получение пользователя**
 
-![image-20240428145359795](/home/rugewit/.config/Typora/typora-user-images/image-20240428145359795.png)
+![get an user](https://github.com/rugewit/MAI-Architecture/blob/main/lab2/images/5.png)
 
 **Обновление пользователя**
 
-![image-20240428145445316](/home/rugewit/.config/Typora/typora-user-images/image-20240428145445316.png)
+![update an user](https://github.com/rugewit/MAI-Architecture/blob/main/lab2/images/6.png)
 
 **Удаление пользователя**
 
-![image-20240428145528804](/home/rugewit/.config/Typora/typora-user-images/image-20240428145528804.png)
+![delete an user](https://github.com/rugewit/MAI-Architecture/blob/main/lab2/images/7.png)
