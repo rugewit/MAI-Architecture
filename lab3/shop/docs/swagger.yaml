@@ -1,0 +1,565 @@
+basePath: /
+definitions:
+  models.Basket:
+    properties:
+      _id:
+        type: string
+      products:
+        items:
+          $ref: '#/definitions/models.Product'
+        type: array
+      totalPrice:
+        type: number
+      userId:
+        type: string
+    type: object
+  models.PatternSearchRequest:
+    properties:
+      lastNamePattern:
+        example: '%_%'
+        type: string
+      namePattern:
+        example: '%_%'
+        type: string
+    type: object
+  models.Product:
+    properties:
+      _id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  models.SignUpUser:
+    properties:
+      lastname:
+        example: Ivanov
+        type: string
+      login:
+        example: AlexHere
+        type: string
+      name:
+        example: Alex
+        type: string
+      password:
+        example: qwerty
+        type: string
+    type: object
+  models.User:
+    properties:
+      _id:
+        type: string
+      basket_id:
+        type: string
+      creationDate:
+        type: string
+      lastname:
+        type: string
+      login:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  title: Shop
+  version: "1.0"
+paths:
+  /basket/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update a basket
+      operationId: update-basket
+      parameters:
+      - description: basket ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: updated basket
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Basket'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Basket'
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+      summary: Update a basket
+      tags:
+      - Basket API
+  /baskets:
+    get:
+      consumes:
+      - application/json
+      description: Get Baskets
+      operationId: get-baskets
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Basket'
+            type: array
+        "400":
+          description: Bad request
+          schema: {}
+      summary: Get Baskets
+      tags:
+      - Basket API
+  /baskets/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a basket
+      operationId: get-basket
+      parameters:
+      - description: basket ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Basket'
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+      summary: Get a basket
+      tags:
+      - Basket API
+  /baskets/add/{idbasket}/{idproduct}:
+    post:
+      consumes:
+      - application/json
+      description: Add a product
+      operationId: add-product
+      parameters:
+      - description: Basket ID
+        in: path
+        name: idbasket
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: idproduct
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+        "400":
+          description: Bad request
+          schema: {}
+      summary: Add a product
+      tags:
+      - Basket API
+  /baskets/remove/{idbasket}/{idproduct}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a product
+      operationId: remove-product
+      parameters:
+      - description: Basket ID
+        in: path
+        name: idbasket
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: idproduct
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Basket'
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+      summary: Remove a product
+      tags:
+      - Basket API
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Get Products
+      operationId: get-products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Product'
+            type: array
+        "400":
+          description: Bad request
+          schema: {}
+      summary: Get Products
+      tags:
+      - Product API
+  /products/:
+    post:
+      consumes:
+      - application/json
+      description: Create a product
+      operationId: create-product
+      parameters:
+      - description: product
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad request
+          schema: {}
+      summary: Create a product
+      tags:
+      - Product API
+  /products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product
+      operationId: delete-product
+      parameters:
+      - description: product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "404":
+          description: Not found
+          schema: {}
+      summary: Delete a product
+      tags:
+      - Product API
+    get:
+      consumes:
+      - application/json
+      description: Get a product
+      operationId: get-product
+      parameters:
+      - description: product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+      summary: Get a product
+      tags:
+      - Product API
+    put:
+      consumes:
+      - application/json
+      description: Update a product
+      operationId: update-product
+      parameters:
+      - description: product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: updated product
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+      summary: Update a product
+      tags:
+      - Product API
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get Users
+      operationId: get-users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "400":
+          description: Bad request
+          schema: {}
+      summary: Get Users
+      tags:
+      - User API
+  /users/:
+    post:
+      consumes:
+      - application/json
+      description: Create an user
+      operationId: create-user
+      parameters:
+      - description: user
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignUpUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad request
+          schema: {}
+      summary: Create an user
+      tags:
+      - User API
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user
+      operationId: delete-user
+      parameters:
+      - description: user ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "404":
+          description: Not found
+          schema: {}
+      summary: Delete a user
+      tags:
+      - User API
+    get:
+      consumes:
+      - application/json
+      description: Get an user
+      operationId: get-user
+      parameters:
+      - description: user ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+      summary: Get an user
+      tags:
+      - User API
+    put:
+      consumes:
+      - application/json
+      description: Update an user
+      operationId: update-user
+      parameters:
+      - description: user ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: updated user
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignUpUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+      summary: Update an user
+      tags:
+      - User API
+  /users/basket/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an user basket
+      operationId: get-user-basket
+      parameters:
+      - description: user ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Basket'
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+      summary: Get an user basket
+      tags:
+      - User API
+  /users/login-search:
+    get:
+      consumes:
+      - application/json
+      description: Get an user by login
+      operationId: get-user-by-login
+      parameters:
+      - description: user login
+        in: query
+        name: login
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad request
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+      summary: Get an user by login
+      tags:
+      - User API
+  /users/pattern-search:
+    post:
+      consumes:
+      - application/json
+      description: Pattern Search. % The percent sign represents zero, one, or multiple
+        characters. _ The underscore sign represents one, single character
+      operationId: pattern-search-users
+      parameters:
+      - description: pattern search request
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.PatternSearchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "400":
+          description: Bad request
+          schema: {}
+      summary: Pattern Search
+      tags:
+      - User API
+swagger: "2.0"

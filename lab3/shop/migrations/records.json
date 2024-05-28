@@ -1,0 +1,731 @@
+{
+  "baskets": [
+    {
+      "_id": "665662d9ea106dc580771721",
+      "userId": "665662d9ea106dc5807716b3",
+      "products": [],
+      "totalPrice": 0
+    },
+    {
+      "_id": "665662d9ea106dc580771722",
+      "userId": "665662d9ea106dc5807716b4",
+      "products": [
+        {
+          "_id": "665662d9ea106dc5807716c0",
+          "name": "Stream Carbon Fan",
+          "price": 89.99
+        }
+      ],
+      "totalPrice": 89.99
+    },
+    {
+      "_id": "665662d9ea106dc580771723",
+      "userId": "665662d9ea106dc5807716b5",
+      "products": [
+        {
+          "_id": "665662d9ea106dc58077170f",
+          "name": "Smart Phone Stream",
+          "price": 92.54
+        },
+        {
+          "_id": "665662d9ea106dc5807716bd",
+          "name": "Blue Toy Blaze",
+          "price": 31.6
+        },
+        {
+          "_id": "665662d9ea106dc580771715",
+          "name": "Speaker Quick Multi-Functional",
+          "price": 64.07
+        }
+      ],
+      "totalPrice": 188.21
+    },
+    {
+      "_id": "665662d9ea106dc580771724",
+      "userId": "665662d9ea106dc5807716b6",
+      "products": [
+        {
+          "_id": "665662d9ea106dc5807716f8",
+          "name": "Noise-Canceling Smartwatch Compact",
+          "price": 99.7
+        }
+      ],
+      "totalPrice": 99.7
+    },
+    {
+      "_id": "665662d9ea106dc580771725",
+      "userId": "665662d9ea106dc5807716b7",
+      "products": [
+        {
+          "_id": "665662d9ea106dc5807716e8",
+          "name": "Silver Headphones Wave",
+          "price": 39.93
+        }
+      ],
+      "totalPrice": 39.93
+    },
+    {
+      "_id": "665662d9ea106dc580771726",
+      "userId": "665662d9ea106dc5807716b8",
+      "products": [
+        {
+          "_id": "665662d9ea106dc5807716c6",
+          "name": "Wood Gray Thermostat",
+          "price": 62.57
+        },
+        {
+          "_id": "665662d9ea106dc5807716c7",
+          "name": "Blaze Quick Phone",
+          "price": 74.48
+        },
+        {
+          "_id": "665662d9ea106dc5807716d0",
+          "name": "Link Smart Tool",
+          "price": 79.2
+        }
+      ],
+      "totalPrice": 216.25
+    },
+    {
+      "_id": "665662d9ea106dc580771727",
+      "userId": "665662d9ea106dc5807716b9",
+      "products": [],
+      "totalPrice": 0
+    },
+    {
+      "_id": "665662d9ea106dc580771728",
+      "userId": "665662d9ea106dc5807716ba",
+      "products": [
+        {
+          "_id": "665662d9ea106dc5807716da",
+          "name": "Smart Speaker Connect Granite",
+          "price": 3.39
+        }
+      ],
+      "totalPrice": 3.39
+    },
+    {
+      "_id": "665662d9ea106dc580771729",
+      "userId": "665662d9ea106dc5807716bb",
+      "products": [
+        {
+          "_id": "665662d9ea106dc580771716",
+          "name": "Pure Plexiglass Appliance",
+          "price": 97.73
+        }
+      ],
+      "totalPrice": 97.73
+    },
+    {
+      "_id": "665662d9ea106dc58077172a",
+      "userId": "665662d9ea106dc5807716bc",
+      "products": [
+        {
+          "_id": "665662d9ea106dc58077171b",
+          "name": "Smart Home Device Quantum Copper",
+          "price": 49.95
+        },
+        {
+          "_id": "665662d9ea106dc580771710",
+          "name": "Luxe Eco-Friendly Vr Headset",
+          "price": 17.88
+        }
+      ],
+      "totalPrice": 67.83
+    }
+  ],
+  "products": [
+    {
+      "_id": "665662d9ea106dc5807716bd",
+      "name": "Blue Toy Blaze",
+      "price": 31.6
+    },
+    {
+      "_id": "665662d9ea106dc5807716be",
+      "name": "Gadget Compact Compact",
+      "price": 36.33
+    },
+    {
+      "_id": "665662d9ea106dc5807716bf",
+      "name": "Teal Appliance Zoom",
+      "price": 5.99
+    },
+    {
+      "_id": "665662d9ea106dc5807716c0",
+      "name": "Stream Carbon Fan",
+      "price": 89.99
+    },
+    {
+      "_id": "665662d9ea106dc5807716c1",
+      "name": "Silver Green Scale",
+      "price": 31.42
+    },
+    {
+      "_id": "665662d9ea106dc5807716c2",
+      "name": "Precision Eco-Friendly Smart Speaker",
+      "price": 94.3
+    },
+    {
+      "_id": "665662d9ea106dc5807716c3",
+      "name": "User-Friendly Microwave Innovative",
+      "price": 6.07
+    },
+    {
+      "_id": "665662d9ea106dc5807716c4",
+      "name": "Luxe Fast-Charging Game",
+      "price": 9.4
+    },
+    {
+      "_id": "665662d9ea106dc5807716c5",
+      "name": "Pure Glass Printer",
+      "price": 48.93
+    },
+    {
+      "_id": "665662d9ea106dc5807716c6",
+      "name": "Wood Gray Thermostat",
+      "price": 62.57
+    },
+    {
+      "_id": "665662d9ea106dc5807716c7",
+      "name": "Blaze Quick Phone",
+      "price": 74.48
+    },
+    {
+      "_id": "665662d9ea106dc5807716c8",
+      "name": "Thermostat X Granite",
+      "price": 26.04
+    },
+    {
+      "_id": "665662d9ea106dc5807716c9",
+      "name": "Sleek Glass Smart Speaker",
+      "price": 36.49
+    },
+    {
+      "_id": "665662d9ea106dc5807716ca",
+      "name": "Mixer Spark Plastic",
+      "price": 40.63
+    },
+    {
+      "_id": "665662d9ea106dc5807716cb",
+      "name": "Stainless Olive Router",
+      "price": 3.05
+    },
+    {
+      "_id": "665662d9ea106dc5807716cc",
+      "name": "Olive Quartz Drone",
+      "price": 26.6
+    },
+    {
+      "_id": "665662d9ea106dc5807716cd",
+      "name": "Wireless Mouse Fresh",
+      "price": 69.16
+    },
+    {
+      "_id": "665662d9ea106dc5807716ce",
+      "name": "Shaver Quick Gps-Enabled",
+      "price": 27.43
+    },
+    {
+      "_id": "665662d9ea106dc5807716cf",
+      "name": "Navy Wood Speaker",
+      "price": 47.87
+    },
+    {
+      "_id": "665662d9ea106dc5807716d0",
+      "name": "Link Smart Tool",
+      "price": 79.2
+    },
+    {
+      "_id": "665662d9ea106dc5807716d1",
+      "name": "Plexiglass Silver Television",
+      "price": 33.72
+    },
+    {
+      "_id": "665662d9ea106dc5807716d2",
+      "name": "Sleek Fan Prime",
+      "price": 9.64
+    },
+    {
+      "_id": "665662d9ea106dc5807716d3",
+      "name": "Purple Smartwatch Quantum",
+      "price": 95.9
+    },
+    {
+      "_id": "665662d9ea106dc5807716d4",
+      "name": "Silver Drone Matrix",
+      "price": 32.17
+    },
+    {
+      "_id": "665662d9ea106dc5807716d5",
+      "name": "Teal Wood Television",
+      "price": 25.21
+    },
+    {
+      "_id": "665662d9ea106dc5807716d6",
+      "name": "White Suede Fridge",
+      "price": 12.32
+    },
+    {
+      "_id": "665662d9ea106dc5807716d7",
+      "name": "Television Modular Touchscreen",
+      "price": 51.16
+    },
+    {
+      "_id": "665662d9ea106dc5807716d8",
+      "name": "High-Performance Lightbulb Sharp",
+      "price": 27.76
+    },
+    {
+      "_id": "665662d9ea106dc5807716d9",
+      "name": "Bright Water-Resistant Monitor",
+      "price": 82.72
+    },
+    {
+      "_id": "665662d9ea106dc5807716da",
+      "name": "Smart Speaker Connect Granite",
+      "price": 3.39
+    },
+    {
+      "_id": "665662d9ea106dc5807716db",
+      "name": "Advanced Television Pure",
+      "price": 59.95
+    },
+    {
+      "_id": "665662d9ea106dc5807716dc",
+      "name": "Luxe User-Friendly Toy",
+      "price": 60.22
+    },
+    {
+      "_id": "665662d9ea106dc5807716dd",
+      "name": "Quantum Bright Smartwatch",
+      "price": 47.96
+    },
+    {
+      "_id": "665662d9ea106dc5807716de",
+      "name": "Silver Phone Core",
+      "price": 68.34
+    },
+    {
+      "_id": "665662d9ea106dc5807716df",
+      "name": "Appliance Flux Plexiglass",
+      "price": 52.57
+    },
+    {
+      "_id": "665662d9ea106dc5807716e0",
+      "name": "Tech Modular Watch",
+      "price": 74.71
+    },
+    {
+      "_id": "665662d9ea106dc5807716e1",
+      "name": "Versatile Water-Resistant Fan",
+      "price": 7.74
+    },
+    {
+      "_id": "665662d9ea106dc5807716e2",
+      "name": "Gps-Enabled Fridge Swift",
+      "price": 84.29
+    },
+    {
+      "_id": "665662d9ea106dc5807716e3",
+      "name": "Aluminum Blue Scale",
+      "price": 3.47
+    },
+    {
+      "_id": "665662d9ea106dc5807716e4",
+      "name": "Aqua Vacuum Boost",
+      "price": 91.16
+    },
+    {
+      "_id": "665662d9ea106dc5807716e5",
+      "name": "Precision Multi-Functional Toy",
+      "price": 30.88
+    },
+    {
+      "_id": "665662d9ea106dc5807716e6",
+      "name": "Maroon Scale Connect",
+      "price": 59.72
+    },
+    {
+      "_id": "665662d9ea106dc5807716e7",
+      "name": "Car Sharp Touchscreen",
+      "price": 92.51
+    },
+    {
+      "_id": "665662d9ea106dc5807716e8",
+      "name": "Silver Headphones Wave",
+      "price": 39.93
+    },
+    {
+      "_id": "665662d9ea106dc5807716e9",
+      "name": "Robust Headphones Spark",
+      "price": 85.94
+    },
+    {
+      "_id": "665662d9ea106dc5807716ea",
+      "name": "Voice-Controlled Thermostat Smart",
+      "price": 7.4
+    },
+    {
+      "_id": "665662d9ea106dc5807716eb",
+      "name": "Blue Carbon Fan",
+      "price": 27.32
+    },
+    {
+      "_id": "665662d9ea106dc5807716ec",
+      "name": "Oven Spark Porcelain",
+      "price": 26.01
+    },
+    {
+      "_id": "665662d9ea106dc5807716ed",
+      "name": "Thermostat Innovative Water-Resistant",
+      "price": 79.52
+    },
+    {
+      "_id": "665662d9ea106dc5807716ee",
+      "name": "Drone Boost Silicon",
+      "price": 60
+    },
+    {
+      "_id": "665662d9ea106dc5807716ef",
+      "name": "Bright Bamboo Watch",
+      "price": 38.85
+    },
+    {
+      "_id": "665662d9ea106dc5807716f0",
+      "name": "Fuchsia Bike Edge",
+      "price": 53.47
+    },
+    {
+      "_id": "665662d9ea106dc5807716f1",
+      "name": "Stream Leather Game",
+      "price": 57.89
+    },
+    {
+      "_id": "665662d9ea106dc5807716f2",
+      "name": "Aqua Monitor Sync",
+      "price": 3.99
+    },
+    {
+      "_id": "665662d9ea106dc5807716f3",
+      "name": "Lightbulb Blaze Porcelain",
+      "price": 74.92
+    },
+    {
+      "_id": "665662d9ea106dc5807716f4",
+      "name": "Bold Energy-Efficient Watch",
+      "price": 31.46
+    },
+    {
+      "_id": "665662d9ea106dc5807716f5",
+      "name": "Fusion Precision Car",
+      "price": 49.27
+    },
+    {
+      "_id": "665662d9ea106dc5807716f6",
+      "name": "Blaze Robust Laptop",
+      "price": 41.06
+    },
+    {
+      "_id": "665662d9ea106dc5807716f7",
+      "name": "Aqua Suede Earbuds",
+      "price": 58.48
+    },
+    {
+      "_id": "665662d9ea106dc5807716f8",
+      "name": "Noise-Canceling Smartwatch Compact",
+      "price": 99.7
+    },
+    {
+      "_id": "665662d9ea106dc5807716f9",
+      "name": "Silver Console Core",
+      "price": 93.09
+    },
+    {
+      "_id": "665662d9ea106dc5807716fa",
+      "name": "Pro Zen Router",
+      "price": 45.24
+    },
+    {
+      "_id": "665662d9ea106dc5807716fb",
+      "name": "Modular Blender Edge",
+      "price": 89.16
+    },
+    {
+      "_id": "665662d9ea106dc5807716fc",
+      "name": "Appliance Bold Ultra-Lightweight",
+      "price": 31.2
+    },
+    {
+      "_id": "665662d9ea106dc5807716fd",
+      "name": "Felt Yellow Thermometer",
+      "price": 27.38
+    },
+    {
+      "_id": "665662d9ea106dc5807716fe",
+      "name": "Sleek Blender Shift",
+      "price": 65.27
+    },
+    {
+      "_id": "665662d9ea106dc5807716ff",
+      "name": "Vr Headset Link Stainless",
+      "price": 77.36
+    },
+    {
+      "_id": "665662d9ea106dc580771700",
+      "name": "Aqua Plastic Iron",
+      "price": 19.6
+    },
+    {
+      "_id": "665662d9ea106dc580771701",
+      "name": "Water-Resistant Hair Dryer Modular",
+      "price": 70.55
+    },
+    {
+      "_id": "665662d9ea106dc580771702",
+      "name": "Scale Shift Plexiglass",
+      "price": 51.76
+    },
+    {
+      "_id": "665662d9ea106dc580771703",
+      "name": "Quick Suede Oven",
+      "price": 27.92
+    },
+    {
+      "_id": "665662d9ea106dc580771704",
+      "name": "Modular Smart Shaver",
+      "price": 99.06
+    },
+    {
+      "_id": "665662d9ea106dc580771705",
+      "name": "Quick Voice-Controlled Headphones",
+      "price": 8.36
+    },
+    {
+      "_id": "665662d9ea106dc580771706",
+      "name": "Toaster Pure Portable",
+      "price": 60.59
+    },
+    {
+      "_id": "665662d9ea106dc580771707",
+      "name": "Versatile Aluminum Phone",
+      "price": 79.15
+    },
+    {
+      "_id": "665662d9ea106dc580771708",
+      "name": "Nova Versatile Clock",
+      "price": 24.13
+    },
+    {
+      "_id": "665662d9ea106dc580771709",
+      "name": "Prime Innovative Fitness Tracker",
+      "price": 30.69
+    },
+    {
+      "_id": "665662d9ea106dc58077170a",
+      "name": "Cool High-Performance Blender",
+      "price": 31.35
+    },
+    {
+      "_id": "665662d9ea106dc58077170b",
+      "name": "Olive Silicon Laptop",
+      "price": 79.2
+    },
+    {
+      "_id": "665662d9ea106dc58077170c",
+      "name": "Black Titanium Printer",
+      "price": 85.99
+    },
+    {
+      "_id": "665662d9ea106dc58077170d",
+      "name": "Silver Lamp Blaze",
+      "price": 19.31
+    },
+    {
+      "_id": "665662d9ea106dc58077170e",
+      "name": "Chrome Navy Microwave",
+      "price": 13.21
+    },
+    {
+      "_id": "665662d9ea106dc58077170f",
+      "name": "Smart Phone Stream",
+      "price": 92.54
+    },
+    {
+      "_id": "665662d9ea106dc580771710",
+      "name": "Luxe Eco-Friendly Vr Headset",
+      "price": 17.88
+    },
+    {
+      "_id": "665662d9ea106dc580771711",
+      "name": "Modular Stylish Keyboard",
+      "price": 78.48
+    },
+    {
+      "_id": "665662d9ea106dc580771712",
+      "name": "Microwave Flux Silver",
+      "price": 82.37
+    },
+    {
+      "_id": "665662d9ea106dc580771713",
+      "name": "Versatile Headphones Turbo",
+      "price": 62.22
+    },
+    {
+      "_id": "665662d9ea106dc580771714",
+      "name": "Sharp Rubber Shaver",
+      "price": 13.98
+    },
+    {
+      "_id": "665662d9ea106dc580771715",
+      "name": "Speaker Quick Multi-Functional",
+      "price": 64.07
+    },
+    {
+      "_id": "665662d9ea106dc580771716",
+      "name": "Pure Plexiglass Appliance",
+      "price": 97.73
+    },
+    {
+      "_id": "665662d9ea106dc580771717",
+      "name": "User-Friendly Clock Modular",
+      "price": 99.57
+    },
+    {
+      "_id": "665662d9ea106dc580771718",
+      "name": "Blender Precision Durable",
+      "price": 33.71
+    },
+    {
+      "_id": "665662d9ea106dc580771719",
+      "name": "Multi-Functional Scale Innovative",
+      "price": 19.11
+    },
+    {
+      "_id": "665662d9ea106dc58077171a",
+      "name": "Smart Hair Dryer Connect",
+      "price": 80.15
+    },
+    {
+      "_id": "665662d9ea106dc58077171b",
+      "name": "Smart Home Device Quantum Copper",
+      "price": 49.95
+    },
+    {
+      "_id": "665662d9ea106dc58077171c",
+      "name": "Gray Chrome Speaker",
+      "price": 13.99
+    },
+    {
+      "_id": "665662d9ea106dc58077171d",
+      "name": "Silver Quartz Oven",
+      "price": 23.66
+    },
+    {
+      "_id": "665662d9ea106dc58077171e",
+      "name": "Cool Ceramic Tool",
+      "price": 29.41
+    },
+    {
+      "_id": "665662d9ea106dc58077171f",
+      "name": "Sharp Rubber Mixer",
+      "price": 62.45
+    },
+    {
+      "_id": "665662d9ea106dc580771720",
+      "name": "Smart Speaker Fresh Eco-Friendly",
+      "price": 16.17
+    }
+  ],
+  "users": [
+    {
+      "_id": "665662d9ea106dc5807716b3",
+      "basket_id": "665662d9ea106dc580771721",
+      "login": "Rice9738",
+      "name": "Elmira",
+      "lastname": "Tillman",
+      "password": "$2a$10$zdIyKf4Stw0uK0hysEjknOi4rMZoD49xjSJvP6kqnv6iUZ..aH3R6",
+      "creationDate": "2024-05-28T16:03:53.486432651+03:00"
+    },
+    {
+      "_id": "665662d9ea106dc5807716b4",
+      "basket_id": "665662d9ea106dc580771722",
+      "login": "OReilly6406",
+      "name": "Maye",
+      "lastname": "Daniel",
+      "password": "$2a$10$4MjGwIFO40y1p/RqlQr1duTVKhrrw.ER8pwUrty/L4JcZR3p5uVQC",
+      "creationDate": "2024-05-28T23:03:53.540396746+03:00"
+    },
+    {
+      "_id": "665662d9ea106dc5807716b5",
+      "basket_id": "665662d9ea106dc580771723",
+      "login": "Koelpin6701",
+      "name": "John",
+      "lastname": "Kirlin",
+      "password": "$2a$10$MbttjzjNO0mzVWYsUipf2uoErxM.MrjTXHH4UKL0vSXwrIbAylL0a",
+      "creationDate": "2024-05-28T15:03:53.599027465+03:00"
+    },
+    {
+      "_id": "665662d9ea106dc5807716b6",
+      "basket_id": "665662d9ea106dc580771724",
+      "login": "Powlowski8647",
+      "name": "Nathaniel",
+      "lastname": "Dickinson",
+      "password": "$2a$10$nxOAaASJ7MI9.kuA2IhQYuV74H9sDn/av4pnTkmXzTLmv/C.SYAF2",
+      "creationDate": "2024-05-28T20:03:53.655865395+03:00"
+    },
+    {
+      "_id": "665662d9ea106dc5807716b7",
+      "basket_id": "665662d9ea106dc580771725",
+      "login": "Rogahn2475",
+      "name": "Paige",
+      "lastname": "Fahey",
+      "password": "$2a$10$pYhFe6X62M8DULyIwMEFT.ALgitwyIx75uYvc8ALt3emqnc6WEIr.",
+      "creationDate": "2024-05-28T19:03:53.710904775+03:00"
+    },
+    {
+      "_id": "665662d9ea106dc5807716b8",
+      "basket_id": "665662d9ea106dc580771726",
+      "login": "Smitham8411",
+      "name": "Khalil",
+      "lastname": "Kassulke",
+      "password": "$2a$10$tsEVnGsmnMzt/5/93h7WjOfUaxFsNz/IaEVPcVHXz11VP.imXTCVa",
+      "creationDate": "2024-05-28T21:03:53.765454787+03:00"
+    },
+    {
+      "_id": "665662d9ea106dc5807716b9",
+      "basket_id": "665662d9ea106dc580771727",
+      "login": "Hermiston4389",
+      "name": "Sydni",
+      "lastname": "Upton",
+      "password": "$2a$10$EhFDi6C0UcMgH.ngex5I/OIT5PcKm7ZVaREshlyahW1/emD04euNy",
+      "creationDate": "2024-05-29T01:03:53.819802029+03:00"
+    },
+    {
+      "_id": "665662d9ea106dc5807716ba",
+      "basket_id": "665662d9ea106dc580771728",
+      "login": "Larson5013",
+      "name": "Kendall",
+      "lastname": "Wehner",
+      "password": "$2a$10$4GguGK1q1IhAbXK0i.yziOfhUAkUyHxwF5.IEV8Oog/flq5iROfKW",
+      "creationDate": "2024-05-28T21:03:53.873038801+03:00"
+    },
+    {
+      "_id": "665662d9ea106dc5807716bb",
+      "basket_id": "665662d9ea106dc580771729",
+      "login": "Hegmann9676",
+      "name": "Uriel",
+      "lastname": "Kshlerin",
+      "password": "$2a$10$zu1C.ulOE29vOrOqzlR2FOUWUrvwQEa2ljZL8GqgflEQ3FsLRAOuC",
+      "creationDate": "2024-05-28T14:03:53.925504828+03:00"
+    },
+    {
+      "_id": "665662d9ea106dc5807716bc",
+      "basket_id": "665662d9ea106dc58077172a",
+      "login": "Lesch3122",
+      "name": "Rebeca",
+      "lastname": "Orn",
+      "password": "$2a$10$KPgIZsVsBjqOW8fD6h8NH..2Cdu8V9buNx1piV9ka3R9qxXGrZuSW",
+      "creationDate": "2024-05-28T17:03:53.978455062+03:00"
+    }
+  ]
+}
