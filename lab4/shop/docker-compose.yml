@@ -1,12 +1,12 @@
 version: "3.9"
 services:
-  #shop:
-  #  build:
-  #    context: .
-   # ports:
-    #  - "8081:8081"
-    #depends_on:
-   #   - db_mongo
+  shop:
+    build:
+      context: .
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db_mongo
   db_mongo:
     image: mongo
     ports:

@@ -1,0 +1,47 @@
+version: "3.9"
+services:
+  gateway_service:
+    build:
+      context: ./gateway_service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db_mongo
+      - redis
+  account_service:
+    build:
+      context: ./account_service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - db_mongo
+      - redis
+  basket_service:
+    build:
+      context: ./basket_service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - db_mongo
+      - redis
+  product_service:
+    build:
+      context: ./product_service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - db_mongo
+      - redis
+  db_mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    restart: always
+    volumes:
+      - ./migrations/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+      - ./migrations/records.json:/records.json
+      #  - ./migrations/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+  redis:
+    image: redis:alpine
+    ports:
+      - '6379:6379'
