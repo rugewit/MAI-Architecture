@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"shop/hash"
 	"shop/models"
@@ -65,21 +66,31 @@ func (controller UserController) CreateUser(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	if err := controller.UserService.InsertUser(insertUser, ctx); err != nil {
+	var userId primitive.ObjectID
+	if userId, err = controller.UserService.InsertUser(insertUser, ctx); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+	insertUser.Id = userId
 
 	// create basket for user
 	newBasket := new(models.Basket)
 	newBasket.UserId = insertUser.Id
 	newBasket.TotalPrice = 0
+	newBasket.Products = make([]models.Product, 0)
 
-	if err := controller.BasketService.InsertBasket(newBasket, ctx); err != nil {
+	var basketId primitive.ObjectID
+	if basketId, err = controller.BasketService.InsertBasket(newBasket, ctx); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	insertUser.BasketId = newBasket.Id
+	insertUser.BasketId = basketId
+	newBasket.Id = basketId
+
+	// update basketId
+	if err := controller.UserService.UpdateUser(insertUser.Id.Hex(), insertUser, ctx); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+	}
 
 	c.JSON(http.StatusCreated, insertUser)
 }

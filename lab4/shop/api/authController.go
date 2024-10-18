@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"shop/hash"
 	jwtauth "shop/jwt"
@@ -67,20 +68,29 @@ func (controller AuthController) Register(c *fiber.Ctx) error {
 		Login:    newUser.Login,
 	}
 
-	if err := controller.UserService.InsertUser(insertUser, ctx); err != nil {
+	var userId primitive.ObjectID
+	if userId, err = controller.UserService.InsertUser(insertUser, ctx); err != nil {
 		return c.Status(http.StatusBadRequest).SendString(err.Error())
-
 	}
+	insertUser.Id = userId
 
 	// create basket for user
 	newBasket := new(models.Basket)
-	newBasket.UserId = insertUser.Id
+	newBasket.UserId = userId
 	newBasket.TotalPrice = 0
+	newBasket.Products = make([]models.Product, 0)
 
-	if err := controller.BasketService.InsertBasket(newBasket, ctx); err != nil {
+	var basketId primitive.ObjectID
+	if basketId, err = controller.BasketService.InsertBasket(newBasket, ctx); err != nil {
 		return c.Status(http.StatusBadRequest).SendString(err.Error())
 	}
-	insertUser.BasketId = newBasket.Id
+	newBasket.Id = basketId
+	insertUser.BasketId = basketId
+
+	// put insertUser with basketId
+	if err := controller.UserService.UpdateUser(insertUser.Id.Hex(), insertUser, ctx); err != nil {
+		return c.Status(http.StatusBadRequest).SendString(err.Error())
+	}
 
 	return c.Status(http.StatusCreated).JSON(insertUser)
 }

@@ -21,12 +21,13 @@ func NewProductService(db *db.MongoDb) *ProductService {
 	}
 }
 
-func (service ProductService) InsertProduct(product *models.Product, ctx context.Context) error {
-	_, err := service.Collection.InsertOne(ctx, product)
+func (service ProductService) InsertProduct(product *models.Product, ctx context.Context) (primitive.ObjectID, error) {
+	res, err := service.Collection.InsertOne(ctx, product)
 	if err != nil {
-		return err
+		return primitive.ObjectID{}, err
 	}
-	return nil
+	productId := res.InsertedID.(primitive.ObjectID)
+	return productId, nil
 }
 
 func (service ProductService) DeleteProduct(id string, ctx context.Context) error {

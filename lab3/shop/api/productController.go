@@ -47,7 +47,7 @@ func (controller ProductController) CreateProduct(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	if err := controller.ProductService.InsertProduct(newProduct, ctx); err != nil {
+	if _, err := controller.ProductService.InsertProduct(newProduct, ctx); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}

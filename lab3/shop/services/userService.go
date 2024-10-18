@@ -21,12 +21,13 @@ func NewUserService(db *db.MongoDb) *UserService {
 	}
 }
 
-func (service UserService) InsertUser(user *models.User, ctx context.Context) error {
-	_, err := service.Collection.InsertOne(ctx, user)
+func (service UserService) InsertUser(user *models.User, ctx context.Context) (primitive.ObjectID, error) {
+	res, err := service.Collection.InsertOne(ctx, user)
 	if err != nil {
-		return err
+		return primitive.ObjectID{}, err
 	}
-	return nil
+	userId := res.InsertedID.(primitive.ObjectID)
+	return userId, nil
 }
 
 func (service UserService) DeleteUser(id string, ctx context.Context) error {

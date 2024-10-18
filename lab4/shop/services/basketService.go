@@ -21,12 +21,13 @@ func NewBasketService(db *db.MongoDb) *BasketService {
 	}
 }
 
-func (service BasketService) InsertBasket(basket *models.Basket, ctx context.Context) error {
-	_, err := service.Collection.InsertOne(ctx, basket)
+func (service BasketService) InsertBasket(basket *models.Basket, ctx context.Context) (primitive.ObjectID, error) {
+	res, err := service.Collection.InsertOne(ctx, basket)
 	if err != nil {
-		return err
+		return primitive.ObjectID{}, err
 	}
-	return nil
+	insertedId := res.InsertedID.(primitive.ObjectID)
+	return insertedId, nil
 }
 
 func (service BasketService) DeleteBasket(id string, ctx context.Context) error {

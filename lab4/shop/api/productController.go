@@ -51,7 +51,10 @@ func (controller ProductController) CreateProduct(c *fiber.Ctx) error {
 	}
 
 	ctx := context.Background()
-	if err := controller.ProductService.InsertProduct(newProduct, ctx); err != nil {
+
+	//var productId primitive.ObjectID
+	//var err error
+	if _, err := controller.ProductService.InsertProduct(newProduct, ctx); err != nil {
 		return c.Status(http.StatusBadRequest).SendString(err.Error())
 	}
 	return c.Status(http.StatusCreated).JSON(newProduct)
